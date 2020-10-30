@@ -6,7 +6,8 @@
 NDBPrefixGenerator::NDBPrefixGenerator(std::set<DBRecord> db, int length)
 : _db(std::move(db)), _length(length)
 {
-    assert(std::is_sorted(db.begin(), db.end()));
+    assert(std::is_sorted(_db.begin(), _db.end()));
+    _dbVector = {_db.begin(), _db.end()};
 }
 
 
@@ -17,7 +18,6 @@ NDB NDBPrefixGenerator::Generate()
     
     for (int i = 0; i < _length; ++i)
     {
-        std::cout << i << std::endl;
         for (const auto& Vp : GetPatterns(W))
         {
             ndb.add(ToNDBRecord(Vp, _length));
@@ -30,14 +30,17 @@ NDB NDBPrefixGenerator::Generate()
 
 NDBRecord NDBPrefixGenerator::ToNDBRecord(const DBRecord& record, std::size_t len)
 {
+    static NDBChar values[] = {NDBChar::Bit0, NDBChar::Bit1};
     NDBRecord result;
-    result.Characters().reserve(len);
-    for (int i = 0; i < len; ++i)
+    result.Characters().resize(len);
+    int i = 0;
+    for (; i < record.size(); ++i)
     {
-        if (i < record.size())
-            result.Characters().push_back(record[i] ? NDBChar::Bit1 : NDBChar::Bit0);
-        else
-            result.Characters().push_back(NDBChar::Wildcard);
+        result.Characters()[i] = values[record[i]];
+    }
+    for (; i < len; ++i)
+    {
+        result.Characters()[i] = NDBChar::Wildcard;
     }
     return result;
 }
@@ -71,11 +74,9 @@ std::unordered_set<DBRecord> NDBPrefixGenerator::GetPatterns(const std::unordere
 
 std::vector<DBRecord> NDBPrefixGenerator::GetPrefixesToAdd(DBRecord prefix) const
 {
-
-    const std::vector<DBRecord> db(_db.begin(), _db.end());
-    auto bounds = FindPrefixBounds(db, prefix);
+    auto bounds = FindPrefixBounds(_dbVector, prefix);
     bool _0 = true, _1 = true;
-    while(bounds.first != db.end() && bounds.second >= bounds.first)
+    while(bounds.second != bounds.first)
     {
         if (bounds.first->size() > prefix.size())
         {
@@ -108,7 +109,7 @@ std::vector<DBRecord> NDBPrefixGenerator::GetPrefixesToAdd(DBRecord prefix) cons
 std::pair<std::vector<DBRecord>::const_iterator, std::vector<DBRecord>::const_iterator>
 NDBPrefixGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &prefix)
 {
-    auto getEqualPrefix = [&](const DBRecord& p){ return DBRecord(p.begin(), p.begin() + prefix.size());};
+    auto getEqualPrefix = [&](const DBRecord& p){ return DBRecordView(p.begin(), p.begin() + prefix.size());};
     auto first = 0;
     auto second = db.size() - 1;
     while(second > first)
@@ -153,5 +154,5 @@ NDBPrefixGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRe
         second++;
 
 
-    return {db.begin() + first, db.begin() + second};
+    return {db.begin() + first, db.begin() + second + 1};
 }

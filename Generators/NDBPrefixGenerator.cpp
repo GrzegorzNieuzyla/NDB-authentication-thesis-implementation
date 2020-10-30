@@ -1,49 +1,49 @@
-#include "NDBGenerator.h"
+#include "NDBPrefixGenerator.h"
 #include <algorithm>
 #include <iostream>
 #include <cassert>
 
-NDBPrefixGenerator::NDBPrefixGenerator(std::set<DBRecord> db)
-: _db(std::move(db))
+NDBPrefixGenerator::NDBPrefixGenerator(std::set<DBRecord> db, int length)
+: _db(std::move(db)), _length(length)
 {
     assert(std::is_sorted(db.begin(), db.end()));
 }
 
 
-NDB NDBPrefixGenerator::generate(int length)
+NDB NDBPrefixGenerator::Generate()
 {
     NDB ndb;
     std::unordered_set<DBRecord> W = {DBRecord()};
     
-    for (int i = 0; i < length; ++i)
+    for (int i = 0; i < _length; ++i)
     {
         std::cout << i << std::endl;
-        for (const auto& Vp : getPatterns(W))
+        for (const auto& Vp : GetPatterns(W))
         {
-            ndb.add(toNDBRecord(Vp, length));
+            ndb.add(ToNDBRecord(Vp, _length));
         }
-        W = getPrefixes(i + 1);
+        W = GetPrefixes(i + 1);
     };
 
     return ndb;
 }
 
-NDBRecord NDBPrefixGenerator::toNDBRecord(const DBRecord& record, std::size_t len)
+NDBRecord NDBPrefixGenerator::ToNDBRecord(const DBRecord& record, std::size_t len)
 {
     NDBRecord result;
-    result.characters().reserve(len);
+    result.Characters().reserve(len);
     for (int i = 0; i < len; ++i)
     {
         if (i < record.size())
-            result.characters().push_back(record[i] ? NDBChar::Bit1 : NDBChar::Bit0);
+            result.Characters().push_back(record[i] ? NDBChar::Bit1 : NDBChar::Bit0);
         else
-            result.characters().push_back(NDBChar::Wildcard);
+            result.Characters().push_back(NDBChar::Wildcard);
     }
     return result;
 }
 
 
-std::unordered_set<DBRecord> NDBPrefixGenerator::getPrefixes(std::size_t len)
+std::unordered_set<DBRecord> NDBPrefixGenerator::GetPrefixes(std::size_t len)
 {
     std::unordered_set<DBRecord> result;
     result.reserve(_db.size());
@@ -54,13 +54,13 @@ std::unordered_set<DBRecord> NDBPrefixGenerator::getPrefixes(std::size_t len)
     return result;
 }
 
-std::unordered_set<DBRecord> NDBPrefixGenerator::getPatterns(const std::unordered_set<DBRecord>& Wi)
+std::unordered_set<DBRecord> NDBPrefixGenerator::GetPatterns(const std::unordered_set<DBRecord>& Wi)
 {
     std::unordered_set<DBRecord> result;
     result.reserve(Wi.size());
     for (const auto& prefix : Wi)
     {
-        for(auto& newPrefix : getPrefixesToAdd(prefix))
+        for(auto& newPrefix : GetPrefixesToAdd(prefix))
         {
             result.emplace(std::move(newPrefix));
         }
@@ -69,11 +69,11 @@ std::unordered_set<DBRecord> NDBPrefixGenerator::getPatterns(const std::unordere
     return result;
 }
 
-std::vector<DBRecord> NDBPrefixGenerator::getPrefixesToAdd(DBRecord prefix) const
+std::vector<DBRecord> NDBPrefixGenerator::GetPrefixesToAdd(DBRecord prefix) const
 {
 
     const std::vector<DBRecord> db(_db.begin(), _db.end());
-    auto bounds = findPrefixBounds(db, prefix);
+    auto bounds = FindPrefixBounds(db, prefix);
     bool _0 = true, _1 = true;
     while(bounds.first != db.end() && bounds.second >= bounds.first)
     {
@@ -106,7 +106,7 @@ std::vector<DBRecord> NDBPrefixGenerator::getPrefixesToAdd(DBRecord prefix) cons
 }
 
 std::pair<std::vector<DBRecord>::const_iterator, std::vector<DBRecord>::const_iterator>
-NDBPrefixGenerator::findPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &prefix) const
+NDBPrefixGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &prefix)
 {
     auto getEqualPrefix = [&](const DBRecord& p){ return DBRecord(p.begin(), p.begin() + prefix.size());};
     auto first = 0;

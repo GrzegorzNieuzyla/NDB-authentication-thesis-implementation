@@ -9,6 +9,19 @@ public:
     {}
     typename std::vector<T>::const_iterator _begin;
     typename std::vector<T>::const_iterator _end;
+
+    [[nodiscard]] std::size_t Size() const
+    {
+        return std::distance(_begin, _end);
+    }
+    typename std::vector<T>::const_iterator begin() const
+    {
+        return _begin;
+    }
+    typename std::vector<T>::const_iterator end() const
+    {
+        return _end;
+    }
 };
 
 template <class T>

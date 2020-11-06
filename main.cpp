@@ -1,23 +1,27 @@
 #include <iostream>
 #include "Generators/NDBPrefixGenerator.h"
+#include "Generators/NDBRandomizedGenerator.h"
 #include "Validator/NDBValidator.h"
+#include "Utils/Benchmark.h"
 #include <cstdlib>
 #include <chrono>
 #include <algorithm>
-#include <cassert>
+
 
 const std::set<DBRecord> ReferenceDB = {{0,0,0,1}, {0,1,0,0}, {1,0,0,0}, {1,0,1,1}};
 const std::set<DBRecord> ReferenceDB2 = {{0,0,0,0}, {0,1,1,0}, {0,0,1,0}, {1,1,0,1}};
 
+void Assert(bool value)
+{
+    if (!value) throw;
+}
+
+
 void PrintNDB(NDB ndb)
 {
-    for (auto record : ndb.Records())
+    for (const auto& record : ndb.Records())
     {
-        for (auto ch : record.Characters())
-        {
-            std::cout << (ch == NDBChar::Bit0 ? '0' : (ch == NDBChar::Bit1 ? '1' : '*'));
-        }
-        std::cout << std::endl;
+        std::cout << record.ToString() << std::endl;
     }
 }
 
@@ -37,24 +41,29 @@ std::set<DBRecord> GenerateRandomDB(int count, int length)
 }
 
 template <class Generator>
-std::pair<size_t, size_t> Benchmark(int count, int length)
+std::tuple<size_t, size_t, std::string> DoBenchmark(int count, int length, bool output = false)
 {
     auto db = GenerateRandomDB(count, length);
-    auto t_start = std::chrono::high_resolution_clock::now();
+    Benchmark benchmark;
+    benchmark.Start();
     auto ndb = Generator(db, length).Generate();
-    auto t_end = std::chrono::high_resolution_clock::now();
-    auto elapsed_time = std::chrono::duration<double>(t_end - t_start).count();
-    assert(NDBValidator(ndb, db).ValidateAllDBRecords());
-    return {elapsed_time, ndb.Records().size()};
+    auto elapsed_time = benchmark.GetElapsedTime();
+    auto memory = Benchmark::GetMemoryUsage();
+    Assert(NDBValidator(ndb, db).ValidateAllDBRecords());
+    if (output)
+    {
+        ndb.DumpToFile("../_tests/ndb_" + std::to_string(count) + "_" + std::to_string(length));
+    }
+    return {elapsed_time, ndb.Records().size(), memory};
 }
 
 int main()
 {
-    auto ndb = NDBPrefixGenerator(ReferenceDB2, ReferenceDB2.begin()->Characters().size()).Generate();
+    auto ndb = NDBRandomizedGenerator(ReferenceDB, ReferenceDB.begin()->Characters().size()).Generate();
     PrintNDB(ndb);
     std::vector<std::pair<int, int>> cases =
             {
-                    {100,  512},
+                    {100,  64},
                     {500,  200},
                     {500,  500},
                     {500,  1000},
@@ -69,7 +78,7 @@ int main()
 
     for (const auto& _case : cases)
     {
-        auto result = Benchmark<NDBPrefixGenerator>(_case.first, _case.second);
-        std::cout << _case.first << ", " << _case.second << " - " << result.first << ", " << result.second << std::endl;
+        auto result = DoBenchmark<NDBRandomizedGenerator>(_case.first, _case.second, true);
+        std::cout << _case.first << ", " << _case.second << " - " << std::get<0>(result) << ", " << std::get<1>(result) << ", " << std::get<2>(result) << std::endl;
     }
 }

@@ -28,10 +28,8 @@ protected:
     [[nodiscard]] static std::pair<std::vector<DBRecord>::const_iterator, std::vector<DBRecord>::const_iterator>
     FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord& prefix);
 
-    int GetRandomValue(int lower, int upper);
-
+    [[nodiscard]] std::size_t GetDBRecordSize() const;
     std::vector<DBRecord> _db;
     int _length;
-    std::mt19937 _rng;
 };
 

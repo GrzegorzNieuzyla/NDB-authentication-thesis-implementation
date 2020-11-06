@@ -4,7 +4,7 @@
 #include <chrono>
 
 NDBGenerator::NDBGenerator(const std::set<DBRecord>& db, int length)
-    : _length(length), _rng(2)
+    : _length(length)
 {
     _db = {db.begin(), db.end()};
     assert(std::is_sorted(_db.begin(), _db.end()));
@@ -140,7 +140,7 @@ NDBGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &
     return {db.begin() + first, db.begin() + second + 1};
 }
 
-int NDBGenerator::GetRandomValue(int lower, int upper)
+std::size_t NDBGenerator::GetDBRecordSize() const
 {
-    return lower + (_rng() % (upper - lower + 1));
+    return _db.empty() ? 0 : _db[0].Size();
 }

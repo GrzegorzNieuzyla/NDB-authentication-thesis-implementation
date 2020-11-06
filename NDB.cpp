@@ -1,7 +1,7 @@
 #include "NDB.h"
 #include <sstream>
 #include <utility>
-
+#include <fstream>
 
 
 NDBChar& NDBRecord::operator[](int index)
@@ -39,6 +39,11 @@ std::string NDBRecord::ToString() const
     return ss.str();
 }
 
+bool NDBRecord::operator==(const NDBRecord& other) const
+{
+    return Characters() == other.Characters();
+}
+
 
 void NDB::add(NDBRecord record)
 {
@@ -54,4 +59,19 @@ std::vector<NDBRecord>& NDB::Records()
 const std::vector<NDBRecord> &NDB::Records() const
 {
     return _records;
+}
+
+std::size_t NDB::Size() const
+{
+    return _records.size();
+}
+
+void NDB::DumpToFile(const std::string& filename) const
+{
+    std::ofstream file(filename, std::ios::out);
+    for (const auto& record : Records())
+    {
+        file << record.ToString() << std::endl;
+    }
+    file.close();
 }

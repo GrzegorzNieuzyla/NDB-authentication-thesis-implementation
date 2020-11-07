@@ -45,18 +45,18 @@ bool NDBRecord::operator==(const NDBRecord& other) const
 }
 
 
-void NDB::add(NDBRecord record)
+void NDB::Add(NDBRecord record)
 {
-    _records.emplace_back(std::move(record));
+    _records.emplace(std::move(record));
 }
 
 
-std::vector<NDBRecord>& NDB::Records()
+NDBRecordUnorderedSet& NDB::Records()
 {
     return _records;
 }
 
-const std::vector<NDBRecord> &NDB::Records() const
+const NDBRecordUnorderedSet &NDB::Records() const
 {
     return _records;
 }

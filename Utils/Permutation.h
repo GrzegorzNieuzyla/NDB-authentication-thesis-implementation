@@ -55,6 +55,16 @@ public:
         return vector[_original[index]];
     }
 
+    int GetIndex(int index) const
+    {
+        return _permuted[index];
+    }
+
+    int GetInverseIndex(int index)
+    {
+        return _original[index];
+    }
+
 private:
     std::vector<int> _permuted;
     std::vector<int> _original;

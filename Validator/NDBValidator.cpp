@@ -1,6 +1,8 @@
 #include "NDBValidator.h"
 #include <utility>
 #include <iostream>
+#include <fstream>
+#include <cassert>
 
 NDBValidator::NDBValidator(NDB ndb, DB db) : _ndb(std::move(ndb)), _db(std::move(db))
 {}
@@ -54,4 +56,54 @@ std::vector<std::pair<DBRecord, NDBRecord>> NDBValidator::ValidateRecord(const D
         }
     }
     return errors;
+}
+
+bool NDBValidator::ValidateFromFile(const DB& db, const std::string& filename, bool printErrors)
+{
+    if (db.empty()) return true;
+    bool result = true;
+    auto recordSize = db.begin()->Size();
+    std::ifstream file(filename);
+    std::string line;
+
+    while(!file.eof())
+    {
+        std::getline(file, line);
+        if (line.empty()) break;
+        assert(line.size() == recordSize);
+        auto ndbRecord = StringToNDBRecord(line);
+        for (const auto& dbRecord : db)
+        {
+            if (!ValidateRecordSingle(dbRecord, ndbRecord))
+            {
+                result = false;
+
+                if (printErrors)
+                {
+                    std::cout << "DB:" << dbRecord.ToString() << " matched by NDB:" << ndbRecord.ToString() << std::endl;
+                }
+            }
+        }
+    }
+
+
+
+    return result;
+}
+
+NDBRecord NDBValidator::StringToNDBRecord(const std::string &str)
+{
+    NDBRecord record;
+    for (const auto& ch : str)
+    {
+        if (ch == '0')
+            record.Characters().push_back(NDBChar::Bit0);
+        else if (ch == '1')
+            record.Characters().push_back(NDBChar::Bit1);
+        else if (ch == '*')
+            record.Characters().push_back(NDBChar::Wildcard);
+        else
+            assert(false);
+    }
+    return record;
 }

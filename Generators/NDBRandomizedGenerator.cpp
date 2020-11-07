@@ -8,7 +8,31 @@ NDBRandomizedGenerator::NDBRandomizedGenerator(const std::set<DBRecord>& db, int
 
 NDB NDBRandomizedGenerator::Generate()
 {
-    NDBRecordUnorderedSet ndbRecords;
+    NDB ndb;
+    int init = ceil(log2(_length));
+    auto W = GetAllPatterns(init);
+
+    for (int i = init; i < _length; ++i)
+    {
+        std::cout << i << std::endl;
+
+        for (const auto &Vp : GetPatternsNotInDBWithPrefixes(W))
+        {
+            auto rand = _random.GetRandomInt(1, _length);
+            for (auto j = 1; j <= rand; ++j)
+            {
+                ndb.Add(PatternGenerate(Vp));
+            }
+            W = GetPrefixes(i + 1);
+        }
+        return ndb;
+    }
+    return ndb;
+}
+
+std::size_t NDBRandomizedGenerator::GenerateToFile(std::ostream& output)
+{
+    std::size_t count = 0;
     int init = ceil(log2(_length));
     auto W = GetAllPatterns(init);
 
@@ -21,15 +45,13 @@ NDB NDBRandomizedGenerator::Generate()
             auto rand = _random.GetRandomInt(1, _length);
             for (auto j = 1; j <= rand; ++j)
             {
-                ndbRecords.emplace(PatternGenerate(Vp));
+                output << PatternGenerate(Vp).ToString() << std::endl;
+                count++;
             }
         }
         W = GetPrefixes(i + 1);
     }
-
-    NDB ndb;
-    ndb.Records() = {ndbRecords.begin(), ndbRecords.end()};
-    return ndb;
+    return count;
 }
 
 std::vector<DBRecord> NDBRandomizedGenerator::GetAllPatterns(int length)
@@ -50,21 +72,21 @@ std::vector<DBRecord> NDBRandomizedGenerator::GetAllPatterns(int length)
 NDBRecord NDBRandomizedGenerator::PatternGenerate(const DBRecord &record) const
 {
     auto permutation = _random.GenerateRandomPermutation(GetDBRecordSize());
-    auto pattern = permutation.Apply<NDBChar>(ToNDBRecord(record, GetDBRecordSize()).Characters());
+    auto pattern = ToNDBRecord(record, GetDBRecordSize()).Characters();
     std::vector<std::pair<int, NDBChar>> SIV;
     for (int i = 0; i < pattern.size(); ++i)
     {
-        auto bit = pattern[i];
+        auto permInd = permutation.GetIndex(i);
+        auto bit = pattern[permInd];
         if (bit == NDBChar::Wildcard) continue;
-        pattern[i] = NDBChar::Wildcard;
-        auto inverse = permutation.Inverse(pattern);
-        if (!DoesNDBRecordMatchesAny(inverse))
+        pattern[permInd] = NDBChar::Wildcard;
+        if (!DoesNDBRecordMatchesAny(pattern))
         {
-            SIV.emplace_back(i, bit);
+            SIV.emplace_back(permInd, bit);
         }
         else
         {
-            pattern[i] = bit;
+            pattern[permInd] = bit;
         }
     }
     int t = _random.GetRandomInt(0, 2);
@@ -75,7 +97,7 @@ NDBRecord NDBRandomizedGenerator::PatternGenerate(const DBRecord &record) const
     }
 
 
-    return NDBRecord(permutation.Inverse<NDBChar>(pattern));
+    return NDBRecord(pattern);
 }
 
 bool NDBRandomizedGenerator::Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord)
@@ -85,8 +107,7 @@ bool NDBRandomizedGenerator::Matches(VectorView<NDBChar> ndbRecord, VectorView<b
     auto ndbChar = ndbRecord._begin;
     for (const auto& dbChar : dbRecord)
     {
-        if (*ndbChar == NDBChar::Wildcard) continue;
-        if ((dbChar && *ndbChar == NDBChar::Bit0) || (!dbChar && *ndbChar == NDBChar::Bit1))
+        if ((*ndbChar != NDBChar::Wildcard) && (dbChar && *ndbChar == NDBChar::Bit0) || (!dbChar && *ndbChar == NDBChar::Bit1))
             return false;
         ++ndbChar;
     }
@@ -113,8 +134,26 @@ bool NDBRandomizedGenerator::Matches(const std::vector<NDBChar>& ndbRecord, cons
 
 bool NDBRandomizedGenerator::DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const
 {
+    if (record.empty()) return false;
+
+    std::size_t index =  record.size();
+    for (auto it = record.rbegin(); it != record.rend(); ++it)
+    {
+        if (*it == NDBChar::Wildcard)
+        {
+            index--;
+        }
+        else
+        {
+            break;
+        }
+    }
+
     return std::any_of(_db.begin(), _db.end(), [&](const auto& dbRecord){
-        return Matches(record, dbRecord.Characters());
+        VectorView<bool> viewDB(dbRecord.Characters().begin(), dbRecord.Characters().begin() + index);
+        VectorView<NDBChar> viewNDB(record.begin(), record.begin() + index);
+        return Matches(viewNDB, viewDB);
     });
 }
+
 

@@ -41,12 +41,12 @@ using NDBRecordUnorderedSet = std::unordered_set<NDBRecord, NDBRecordHash>;
 class NDB
 {
 public:
-    void add(NDBRecord record);
-    std::vector<NDBRecord>& Records();
-    [[nodiscard]] const std::vector<NDBRecord>& Records() const;
+    void Add(NDBRecord record);
+    NDBRecordUnorderedSet& Records();
+    [[nodiscard]] const NDBRecordUnorderedSet& Records() const;
     [[nodiscard]] std::size_t Size() const;
     void DumpToFile(const std::string& filename) const;
 private:
-    std::vector<NDBRecord> _records;
+    NDBRecordUnorderedSet _records;
 };
 

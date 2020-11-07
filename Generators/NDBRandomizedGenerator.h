@@ -7,7 +7,13 @@ class NDBRandomizedGenerator : NDBGenerator
 {
 public:
     NDBRandomizedGenerator(const std::set<DBRecord>& db, int length);
+    std::size_t GenerateToFile(std::ostream& output) override;
     NDB Generate() override;
+    static std::string GetName()
+    {
+        return "Randomized";
+    }
+
 private:
     static std::vector<DBRecord> GetAllPatterns(int length);
     [[nodiscard]] bool DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const;

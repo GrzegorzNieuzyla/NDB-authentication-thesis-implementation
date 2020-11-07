@@ -1,7 +1,6 @@
 #include "NDBGenerator.h"
 #include <cassert>
 #include <algorithm>
-#include <chrono>
 
 NDBGenerator::NDBGenerator(const std::set<DBRecord>& db, int length)
     : _length(length)

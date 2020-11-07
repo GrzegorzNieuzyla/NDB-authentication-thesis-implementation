@@ -6,7 +6,7 @@
 #include <cstdlib>
 #include <chrono>
 #include <algorithm>
-
+#include <fstream>
 
 const std::set<DBRecord> ReferenceDB = {{0,0,0,1}, {0,1,0,0}, {1,0,0,0}, {1,0,1,1}};
 const std::set<DBRecord> ReferenceDB2 = {{0,0,0,0}, {0,1,1,0}, {0,0,1,0}, {1,1,0,1}};
@@ -15,7 +15,6 @@ void Assert(bool value)
 {
     if (!value) throw;
 }
-
 
 void PrintNDB(NDB ndb)
 {
@@ -44,17 +43,17 @@ template <class Generator>
 std::tuple<size_t, size_t, std::string> DoBenchmark(int count, int length, bool output = false)
 {
     auto db = GenerateRandomDB(count, length);
+    auto filename = "../_tests/ndb_" + Generator::GetName() + "_" + std::to_string(count) + "_" + std::to_string(length);
+    std::ofstream file(filename);
+
     Benchmark benchmark;
     benchmark.Start();
-    auto ndb = Generator(db, length).Generate();
+    auto record_count = Generator(db, length).GenerateToFile(file);
     auto elapsed_time = benchmark.GetElapsedTime();
+
     auto memory = Benchmark::GetMemoryUsage();
-    Assert(NDBValidator(ndb, db).ValidateAllDBRecords());
-    if (output)
-    {
-        ndb.DumpToFile("../_tests/ndb_" + std::to_string(count) + "_" + std::to_string(length));
-    }
-    return {elapsed_time, ndb.Records().size(), memory};
+    Assert(NDBValidator::ValidateFromFile(db, filename));
+    return {elapsed_time, record_count, memory};
 }
 
 int main()
@@ -63,7 +62,7 @@ int main()
     PrintNDB(ndb);
     std::vector<std::pair<int, int>> cases =
             {
-                    {100,  64},
+                    {50,  128},
                     {500,  200},
                     {500,  500},
                     {500,  1000},

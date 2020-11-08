@@ -15,7 +15,6 @@ public:
     }
 
 private:
-    static std::vector<DBRecord> GetAllPatterns(int length);
     [[nodiscard]] bool DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const;
     [[nodiscard]] NDBRecord PatternGenerate(const DBRecord& record) const;
     static bool Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord);

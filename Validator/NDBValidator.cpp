@@ -1,4 +1,6 @@
 #include "NDBValidator.h"
+#include "../Generators/NDBRandomizedGenerator.h"
+#include "../Utils/NDBUtils.h"
 #include <utility>
 #include <iostream>
 #include <fstream>
@@ -106,4 +108,32 @@ NDBRecord NDBValidator::StringToNDBRecord(const std::string &str)
             assert(false);
     }
     return record;
+}
+
+bool NDBValidator::ValidateFalsePositives(bool printSummary, bool printErrors) const
+{
+    bool result = true;
+    int count = 0;
+    auto patterns = NDBUtils::GetAllPatterns(_ndb.Size() == 0 ? 0 : static_cast<int>(_ndb.Records().begin()->Size()));
+    for (const auto& pattern : patterns)
+    {
+        if (_db.find(pattern) == _db.end())
+        {
+            auto errors =  ValidateRecord(pattern);
+            if (errors.empty())
+            {
+                result = false;
+                if (printErrors)
+                {
+                    std::cout << "Non-DB Record: " + pattern.ToString() << " matches" << std::endl;
+                }
+                count++;
+            }
+        }
+    }
+    if (printSummary)
+    {
+        std::cout << count << " false positives\n";
+    }
+    return result;
 }

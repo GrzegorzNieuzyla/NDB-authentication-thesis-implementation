@@ -1,4 +1,5 @@
 #include "NDBRandomizedGenerator.h"
+#include "../Utils/NDBUtils.h"
 #include <cmath>
 #include <iostream>
 
@@ -10,7 +11,7 @@ NDB NDBRandomizedGenerator::Generate()
 {
     NDB ndb;
     int init = ceil(log2(_length));
-    auto W = GetAllPatterns(init);
+    auto W = NDBUtils::GetAllPatterns(init);
 
     for (int i = init; i < _length; ++i)
     {
@@ -25,7 +26,7 @@ NDB NDBRandomizedGenerator::Generate()
             }
             W = GetPrefixes(i + 1);
         }
-        return ndb;
+
     }
     return ndb;
 }
@@ -34,7 +35,7 @@ std::size_t NDBRandomizedGenerator::GenerateToFile(std::ostream& output)
 {
     std::size_t count = 0;
     int init = ceil(log2(_length));
-    auto W = GetAllPatterns(init);
+    auto W = NDBUtils::GetAllPatterns(init);
 
     for (int i = init; i < _length; ++i)
     {
@@ -52,21 +53,6 @@ std::size_t NDBRandomizedGenerator::GenerateToFile(std::ostream& output)
         W = GetPrefixes(i + 1);
     }
     return count;
-}
-
-std::vector<DBRecord> NDBRandomizedGenerator::GetAllPatterns(int length)
-{
-    std::vector<DBRecord> result;
-    if (length == 0) return {DBRecord()};
-
-    for (const auto& pattern : GetAllPatterns(length - 1))
-    {
-        result.push_back(pattern);
-        result.back().Characters().push_back(false);
-        result.push_back(pattern);
-        result.back().Characters().push_back(true);
-    }
-    return result;
 }
 
 NDBRecord NDBRandomizedGenerator::PatternGenerate(const DBRecord &record) const

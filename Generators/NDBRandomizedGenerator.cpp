@@ -131,29 +131,40 @@ bool NDBRandomizedGenerator::Matches(const std::vector<NDBChar>& ndbRecord, cons
 
 }
 
+bool NDBRandomizedGenerator::Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord, std::vector<int> indices)
+{
+    if (ndbRecord.size() != dbRecord.size())
+        return false;
+    for (auto index : indices)
+    {
+        auto ndbChar = ndbRecord[index];
+        auto dbChar = dbRecord[index];
+        if (ndbChar == NDBChar::Wildcard) continue;
+        if ((dbChar && ndbChar == NDBChar::Bit0) || (!dbChar && ndbChar == NDBChar::Bit1))
+            return false;
+    }
+    return true;
+}
+
 
 bool NDBRandomizedGenerator::DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const
 {
     if (record.empty()) return false;
 
-    std::size_t index =  record.size();
-    for (auto it = record.rbegin(); it != record.rend(); ++it)
+    std::vector<int> indices;
+    indices.reserve(record.size());
+    for (int i = 0; i < record.size(); ++i)
     {
-        if (*it == NDBChar::Wildcard)
+        if (record[i] != NDBChar::Wildcard)
         {
-            index--;
-        }
-        else
-        {
-            break;
+            indices.push_back(i);
         }
     }
 
     return std::any_of(_db.begin(), _db.end(), [&](const auto& dbRecord){
-        VectorView<bool> viewDB(dbRecord.Characters().begin(), dbRecord.Characters().begin() + index);
-        VectorView<NDBChar> viewNDB(record.begin(), record.begin() + index);
-        return Matches(viewNDB, viewDB);
+        return Matches(record, dbRecord.Characters(), indices);
     });
 }
+
 
 

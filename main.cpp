@@ -62,7 +62,7 @@ int main()
     PrintNDB(ndb);
     std::vector<std::pair<int, int>> cases =
             {
-                    {50,  128},
+                    {10,  512},
                     {500,  200},
                     {500,  500},
                     {500,  1000},
@@ -79,5 +79,6 @@ int main()
     {
         auto result = DoBenchmark<NDBRandomizedGenerator>(_case.first, _case.second, true);
         std::cout << _case.first << ", " << _case.second << " - " << std::get<0>(result) << ", " << std::get<1>(result) << ", " << std::get<2>(result) << std::endl;
+        break;
     }
 }

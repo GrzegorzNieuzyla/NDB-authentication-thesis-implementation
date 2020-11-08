@@ -19,6 +19,7 @@ private:
     [[nodiscard]] bool DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const;
     [[nodiscard]] NDBRecord PatternGenerate(const DBRecord& record) const;
     static bool Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord);
+    static bool Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord, std::vector<int> indices);
     static bool Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord);
     mutable RandomValuesGenerator _random;
 };

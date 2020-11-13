@@ -24,9 +24,8 @@ NDB NDBRandomizedGenerator::Generate()
             {
                 ndb.Add(PatternGenerate(Vp));
             }
-            W = GetPrefixes(i + 1);
         }
-
+        W = GetPrefixes(i + 1);
     }
     return ndb;
 }
@@ -75,7 +74,7 @@ NDBRecord NDBRandomizedGenerator::PatternGenerate(const DBRecord &record) const
             pattern[permInd] = bit;
         }
     }
-    int t = _random.GetRandomInt(0, 2);
+    int t = _random.GetRandomInt(0, SIV.size());
     auto choices = _random.GetRandomChoice(SIV, t);
     for (const auto& pair : choices)
     {

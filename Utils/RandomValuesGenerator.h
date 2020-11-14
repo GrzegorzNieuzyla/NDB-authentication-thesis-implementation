@@ -2,6 +2,7 @@
 #include <random>
 
 #include "Permutation.h"
+#include "RandomSeedProvider.h"
 #include <vector>
 #include <chrono>
 
@@ -9,10 +10,7 @@
 class RandomValuesGenerator
 {
 public:
-    RandomValuesGenerator() : RandomValuesGenerator(std::chrono::system_clock::now().time_since_epoch().count()) {}
-    explicit RandomValuesGenerator(std::size_t seed)
-    : _rng(seed)
-    {}
+    RandomValuesGenerator() : _rng(RandomSeedProvider::Get()) {}
     Permutation GenerateRandomPermutation(int size)
     {
         std::vector<int> permutations;
@@ -51,6 +49,18 @@ public:
         }
         return result;
     }
+
+    std::vector<int> GetRandomIndices(int length, int count)
+    {
+        std::vector<int> indices;
+        indices.resize(length);
+        for (int i = 0; i < length; ++i)
+        {
+            indices[i] = i;
+        }
+        return GetRandomChoice(indices, count);
+    }
+
 private:
     std::mt19937 _rng;
 };

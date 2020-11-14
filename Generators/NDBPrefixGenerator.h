@@ -14,7 +14,5 @@ public:
     }
 
     // Generates NDB from DB
-    std::size_t GenerateToFile(std::ostream& output) override;
-
-    NDB Generate() override;
+    std::size_t Generate(Stream& output) override;
 };

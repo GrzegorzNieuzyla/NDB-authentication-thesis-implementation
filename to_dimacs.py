@@ -2,7 +2,7 @@
 import sys
 
 def header(vars, claues):
-    return f'p cnf {vars} {claues}'
+    return f'p cnf {vars} {claues}\n'
 
 
 def convert(line):
@@ -12,9 +12,9 @@ def convert(line):
     var = 1
     for char in line:
         if char == '1':
-            result += f'{var} '
+            result += f'-{var} '
         elif char == '0':
-            result += f'~{var} '
+            result += f'{var} '
         var += 1    
     result += '0'
     return result

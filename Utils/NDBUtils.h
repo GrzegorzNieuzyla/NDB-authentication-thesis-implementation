@@ -7,8 +7,8 @@ class NDBUtils
 public:
     static std::vector<DBRecord> GetAllPatterns(int length)
     {
-        std::vector<DBRecord> result;
         if (length == 0) return {DBRecord()};
+        std::vector<DBRecord> result;
 
         for (const auto& pattern : GetAllPatterns(length - 1))
         {

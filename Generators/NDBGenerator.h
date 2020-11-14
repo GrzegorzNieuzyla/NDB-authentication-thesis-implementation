@@ -2,6 +2,7 @@
 #include <vector>
 #include "../NDB.h"
 #include "../DB.h"
+#include "../Streams/Stream.h"
 #include <unordered_set>
 #include <set>
 #include <random>
@@ -12,8 +13,7 @@ class NDBGenerator
 {
 public:
     NDBGenerator(const std::set<DBRecord>& db, int length);
-    virtual std::size_t GenerateToFile(std::ostream& output) = 0;
-    virtual NDB Generate() = 0;
+    virtual std::size_t Generate(Stream& output) = 0;
 protected:
     [[nodiscard]] std::vector<DBRecord> GetPatternsNotInDbWithPrefix(DBRecord prefix) const;
     [[nodiscard]] std::vector<DBRecord> GetPatternsNotInDBWithPrefixes(const std::vector<DBRecord>& Wi) const;

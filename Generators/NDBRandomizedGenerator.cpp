@@ -7,30 +7,7 @@ NDBRandomizedGenerator::NDBRandomizedGenerator(const std::set<DBRecord>& db, int
  : NDBGenerator(db, length)
 {}
 
-NDB NDBRandomizedGenerator::Generate()
-{
-    NDB ndb;
-    int init = ceil(log2(_length));
-    auto W = NDBUtils::GetAllPatterns(init);
-
-    for (int i = init; i < _length; ++i)
-    {
-        std::cout << i << std::endl;
-
-        for (const auto &Vp : GetPatternsNotInDBWithPrefixes(W))
-        {
-            auto rand = _random.GetRandomInt(1, _length);
-            for (auto j = 1; j <= rand; ++j)
-            {
-                ndb.Add(PatternGenerate(Vp));
-            }
-        }
-        W = GetPrefixes(i + 1);
-    }
-    return ndb;
-}
-
-std::size_t NDBRandomizedGenerator::GenerateToFile(std::ostream& output)
+std::size_t NDBRandomizedGenerator::Generate(Stream& output)
 {
     std::size_t count = 0;
     int init = ceil(log2(_length));
@@ -45,7 +22,7 @@ std::size_t NDBRandomizedGenerator::GenerateToFile(std::ostream& output)
             auto rand = _random.GetRandomInt(1, _length);
             for (auto j = 1; j <= rand; ++j)
             {
-                output << PatternGenerate(Vp).ToString() << std::endl;
+                output << PatternGenerate(Vp).ToString() << "\n";
                 count++;
             }
         }

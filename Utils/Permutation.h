@@ -19,7 +19,16 @@ public:
         }
     }
 
-
+    static Permutation TrivialPermutation(int length)
+    {
+        std::vector<int> indices;
+        indices.resize(length);
+        for (int i = 0; i < length; ++i)
+        {
+            indices[i] = i;
+        }
+        return Permutation(indices);
+    }
 
     template <class T> std::vector<T> Apply(const std::vector<T>& vector) const
     {
@@ -41,6 +50,18 @@ public:
         for (int i = 0; i < vector.size(); ++i)
         {
             result[_original[i]] = vector[i];
+        }
+        return result;
+    }
+
+    std::string Inverse(const std::string& string) const
+    {
+        assert(string.size() == _permuted.size());
+        std::string result;
+        result.resize(string.size());
+        for (int i = 0; i < string.size(); ++i)
+        {
+            result[_original[i]] = string[i];
         }
         return result;
     }

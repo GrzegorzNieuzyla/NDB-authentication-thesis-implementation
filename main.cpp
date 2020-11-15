@@ -1,12 +1,13 @@
 #include <iostream>
-#include "Generators/NDBPrefixGenerator.h"
-#include "Generators/NDBRandomizedGenerator.h"
-#include "Generators/NDBRandomizedGenerator2.h"
+#include "Generators/NDB_PrefixGenerator.h"
+#include "Generators/NDB_RandomizedGenerator.h"
+#include "Generators/NDB_RandomizedGenerator2.h"
 #include "Validator/NDBValidator.h"
 #include "Utils/Benchmark.h"
 #include "Streams/FileStream.h"
 #include "Streams/NDBStream.h"
 #include "Streams/DimacsFileStream.h"
+#include "Generators/NDB_QHiddenGenerator.h"
 #include <cstdlib>
 #include <chrono>
 #include <algorithm>
@@ -42,13 +43,14 @@ void PrintDB(const DB& db)
 
 std::set<DBRecord> GenerateRandomDB(int count, int length)
 {
+    RandomValuesGenerator _rng;
     std::set<DBRecord> db;
     for (int i = 0; i < count; i++)
     {
         DBRecord record;
         for (int j = 0; j < length; j++)
         {
-            record.Characters().emplace_back(rand() % 2 == 1);
+            record.Characters().emplace_back(_rng.GetRandomInt(0, 1) == 1);
         }
         db.emplace(std::move(record));
     }
@@ -58,14 +60,14 @@ std::set<DBRecord> GenerateRandomDB(int count, int length)
 template <class Generator>
 std::tuple<size_t, size_t, std::string> DoBenchmark(int count, int length)
 {
-    auto db = GenerateRandomDB(count, length);
+    auto db = GenerateRandomDB(1, length);
     auto filename = "../_tests/SAT/ndb_" + Generator::GetName() + "_" + std::to_string(count) + "_" + std::to_string(length)
             + ".dimacs";
     DimacsFileStream file(filename);
 
     Benchmark benchmark;
     benchmark.Start();
-    auto record_count = Generator(db, length).Generate(file);
+    auto record_count = Generator(*db.begin(), length).Generate(file);
     auto elapsed_time = benchmark.GetElapsedTime();
     file.WriteHeader(length, record_count);
     auto memory = Benchmark::GetMemoryUsage();
@@ -77,11 +79,11 @@ int main()
 {
 //    auto db = GenerateRandomDB(1, 20);
 //    NDBStream ndb;
-//    NDBRandomizedGenerator2(db, db.begin()->Characters().size()).Generate(ndb);
+//    NDB_RandomizedGenerator2(db, db.begin()->Characters().size()).Generate(ndb);
 //    NDBValidator(ndb.Ndb(), db).ValidateAllDBRecords();
     std::vector<std::pair<int, int>> cases =
             {
-                    {1,  2048},
+                    {20,  512},
                     {500,  200},
                     {500,  500},
                     {500,  1000},
@@ -96,7 +98,7 @@ int main()
 
     for (const auto& _case : cases)
     {
-        auto result = DoBenchmark<NDBRandomizedGenerator2>(_case.first, _case.second);
+        auto result = DoBenchmark<NDB_QHiddenGenerator>(_case.first, _case.second);
         std::cout << _case.first << ", " << _case.second << " - " << std::get<0>(result) << ", " << std::get<1>(result) << ", " << std::get<2>(result) << std::endl;
         break;
     }

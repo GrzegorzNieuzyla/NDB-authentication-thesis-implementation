@@ -1,12 +1,12 @@
 #include "../NDB.h"
-#include "NDBGenerator.h"
+#include "NDB_Generator.h"
 #include <set>
 #include <unordered_set>
 
-class NDBPrefixGenerator : NDBGenerator
+class NDB_PrefixGenerator : NDB_Generator
 {
 public:
-    NDBPrefixGenerator(const std::set<DBRecord>& db, int length);
+    NDB_PrefixGenerator(const std::set<DBRecord>& db, int length);
 
     [[nodiscard]] static std::string GetName()
     {

@@ -1,8 +1,8 @@
-#include "NDBGenerator.h"
+#include "NDB_Generator.h"
 #include <cassert>
 #include <algorithm>
 
-NDBGenerator::NDBGenerator(const std::set<DBRecord>& db, int length)
+NDB_Generator::NDB_Generator(const std::set<DBRecord>& db, int length)
     : _length(length)
 {
     _db = {db.begin(), db.end()};
@@ -10,7 +10,7 @@ NDBGenerator::NDBGenerator(const std::set<DBRecord>& db, int length)
 }
 
 
-NDBRecord NDBGenerator::ToNDBRecord(const DBRecord& record, std::size_t len)
+NDBRecord NDB_Generator::ToNDBRecord(const DBRecord& record, std::size_t len)
 {
     static NDBChar values[] = {NDBChar::Bit0, NDBChar::Bit1};
     NDBRecord result;
@@ -28,7 +28,7 @@ NDBRecord NDBGenerator::ToNDBRecord(const DBRecord& record, std::size_t len)
 }
 
 
-std::vector<DBRecord> NDBGenerator::GetPrefixes(std::size_t len) const
+std::vector<DBRecord> NDB_Generator::GetPrefixes(std::size_t len) const
 {
     std::vector<DBRecord> result;
     result.reserve(_db.size());
@@ -39,7 +39,7 @@ std::vector<DBRecord> NDBGenerator::GetPrefixes(std::size_t len) const
     return result;
 }
 
-std::vector<DBRecord> NDBGenerator::GetPatternsNotInDBWithPrefixes(const std::vector<DBRecord>& Wi) const
+std::vector<DBRecord> NDB_Generator::GetPatternsNotInDBWithPrefixes(const std::vector<DBRecord>& Wi) const
 {
     std::vector<DBRecord> result;
     result.reserve(Wi.size());
@@ -54,7 +54,7 @@ std::vector<DBRecord> NDBGenerator::GetPatternsNotInDBWithPrefixes(const std::ve
     return result;
 }
 
-std::vector<DBRecord> NDBGenerator::GetPatternsNotInDbWithPrefix(DBRecord prefix) const
+std::vector<DBRecord> NDB_Generator::GetPatternsNotInDbWithPrefix(DBRecord prefix) const
 {
     auto bounds = FindPrefixBounds(_db, prefix);
     bool _0 = true, _1 = true;
@@ -89,7 +89,7 @@ std::vector<DBRecord> NDBGenerator::GetPatternsNotInDbWithPrefix(DBRecord prefix
 }
 
 std::pair<std::vector<DBRecord>::const_iterator, std::vector<DBRecord>::const_iterator>
-NDBGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &prefix)
+NDB_Generator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &prefix)
 {
     auto getEqualPrefix = [&](const DBRecord& p){ return DBRecordView(p.begin(), p.begin() + prefix.Size());};
     auto first = 0;
@@ -139,7 +139,7 @@ NDBGenerator::FindPrefixBounds(const std::vector<DBRecord>& db, const DBRecord &
     return {db.begin() + first, db.begin() + second + 1};
 }
 
-std::size_t NDBGenerator::GetDBRecordSize() const
+std::size_t NDB_Generator::GetDBRecordSize() const
 {
     return _db.empty() ? 0 : _db[0].Size();
 }

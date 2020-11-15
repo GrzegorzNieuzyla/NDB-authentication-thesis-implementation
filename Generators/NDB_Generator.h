@@ -3,16 +3,17 @@
 #include "../NDB.h"
 #include "../DB.h"
 #include "../Streams/Stream.h"
+#include "../Utils/RandomValuesGenerator.h"
 #include <unordered_set>
 #include <set>
 #include <random>
 
 
-
-class NDBGenerator
+class NDB_Generator
 {
 public:
-    NDBGenerator(const std::set<DBRecord>& db, int length);
+    NDB_Generator() = default;
+    NDB_Generator(const std::set<DBRecord>& db, int length);
     virtual std::size_t Generate(Stream& output) = 0;
 protected:
     [[nodiscard]] std::vector<DBRecord> GetPatternsNotInDbWithPrefix(DBRecord prefix) const;
@@ -30,6 +31,7 @@ protected:
 
     [[nodiscard]] std::size_t GetDBRecordSize() const;
     std::vector<DBRecord> _db;
-    int _length;
+    int _length = 0;
+    mutable RandomValuesGenerator _random;
 };
 

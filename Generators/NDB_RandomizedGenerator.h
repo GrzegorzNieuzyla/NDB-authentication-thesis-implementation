@@ -1,12 +1,12 @@
 #pragma once
-#include "NDBGenerator.h"
+#include "NDB_Generator.h"
 #include "../Utils/RandomValuesGenerator.h"
 #include <set>
 
-class NDBRandomizedGenerator : NDBGenerator
+class NDB_RandomizedGenerator : NDB_Generator
 {
 public:
-    NDBRandomizedGenerator(const std::set<DBRecord>& db, int length);
+    NDB_RandomizedGenerator(const std::set<DBRecord>& db, int length);
     std::size_t Generate(Stream& output) override;
     static std::string GetName()
     {
@@ -19,7 +19,6 @@ private:
     static bool Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord);
     static bool Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord, std::vector<int> indices);
     static bool Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord);
-    mutable RandomValuesGenerator _random;
 };
 
 

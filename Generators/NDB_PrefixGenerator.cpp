@@ -1,11 +1,11 @@
 #include <iostream>
-#include "NDBPrefixGenerator.h"
+#include "NDB_PrefixGenerator.h"
 
-NDBPrefixGenerator::NDBPrefixGenerator(const std::set<DBRecord>& db, int length)
-        : NDBGenerator(db, length)
+NDB_PrefixGenerator::NDB_PrefixGenerator(const std::set<DBRecord>& db, int length)
+        : NDB_Generator(db, length)
 {}
 
-std::size_t NDBPrefixGenerator::Generate(Stream& output)
+std::size_t NDB_PrefixGenerator::Generate(Stream& output)
 {
     std::size_t count = 0;
     std::vector<DBRecord> W = {DBRecord()};

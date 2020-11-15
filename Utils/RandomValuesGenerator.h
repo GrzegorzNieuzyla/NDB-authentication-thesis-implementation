@@ -25,7 +25,8 @@ public:
     }
     int GetRandomInt(int lower, int upper)
     {
-        return lower + _rng() % (upper - lower + 1);
+        std::uniform_int_distribution<int> dist(lower, upper);
+        return dist(_rng);
     }
 
     template<class T> std::vector<T> GetRandomChoice(const std::vector<T>& container, int count)
@@ -59,6 +60,12 @@ public:
             indices[i] = i;
         }
         return GetRandomChoice(indices, count);
+    }
+
+    double GetRandomDouble(double lower, double upper)
+    {
+        std::uniform_real_distribution<double> dist(lower, upper);
+        return dist(_rng);
     }
 
 private:

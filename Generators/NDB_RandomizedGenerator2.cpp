@@ -1,13 +1,13 @@
-#include "NDBRandomizedGenerator2.h"
+#include "NDB_RandomizedGenerator2.h"
 #include "../Utils/NDBUtils.h"
 #include <cmath>
 #include <iostream>
 
-NDBRandomizedGenerator2::NDBRandomizedGenerator2(const std::set<DBRecord>& db, int length)
- : NDBGenerator(db, length)
+NDB_RandomizedGenerator2::NDB_RandomizedGenerator2(const std::set<DBRecord>& db, int length)
+ : NDB_Generator(db, length)
 {}
 
-std::size_t NDBRandomizedGenerator2::Generate(Stream& output)
+std::size_t NDB_RandomizedGenerator2::Generate(Stream& output)
 {
     std::size_t count = 0;
     int init = std::min(
@@ -49,7 +49,7 @@ std::size_t NDBRandomizedGenerator2::Generate(Stream& output)
     return count;
 }
 
-NDBRecord NDBRandomizedGenerator2::PatternGenerate(const DBRecord &record, const std::vector<std::pair<int, bool>>& augs) const
+NDBRecord NDB_RandomizedGenerator2::PatternGenerate(const DBRecord &record, const std::vector<std::pair<int, bool>>& augs) const
 {
     auto permutation = _random.GenerateRandomPermutation(GetDBRecordSize());
     auto pattern = ToNDBRecord(record, GetDBRecordSize()).Characters();
@@ -84,7 +84,7 @@ NDBRecord NDBRandomizedGenerator2::PatternGenerate(const DBRecord &record, const
 
 }
 
-bool NDBRandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord)
+bool NDB_RandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord)
 {
     if (ndbRecord.size() != dbRecord.size())
         return false;
@@ -101,7 +101,7 @@ bool NDBRandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, con
 
 }
 
-bool NDBRandomizedGenerator2::Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord)
+bool NDB_RandomizedGenerator2::Matches(VectorView<NDBChar> ndbRecord, VectorView<bool> dbRecord)
 {
     if (ndbRecord.Size() != dbRecord.Size())
         return false;
@@ -115,7 +115,7 @@ bool NDBRandomizedGenerator2::Matches(VectorView<NDBChar> ndbRecord, VectorView<
     return true;
 }
 
-bool NDBRandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord, std::vector<int> indices)
+bool NDB_RandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, const std::vector<bool>& dbRecord, std::vector<int> indices)
 {
     if (ndbRecord.size() != dbRecord.size())
         return false;
@@ -131,7 +131,7 @@ bool NDBRandomizedGenerator2::Matches(const std::vector<NDBChar>& ndbRecord, con
 }
 
 
-bool NDBRandomizedGenerator2::DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const
+bool NDB_RandomizedGenerator2::DoesNDBRecordMatchesAny(std::vector<NDBChar> record) const
 {
     if (record.empty()) return false;
 
@@ -150,7 +150,7 @@ bool NDBRandomizedGenerator2::DoesNDBRecordMatchesAny(std::vector<NDBChar> recor
     });
 }
 
-void NDBRandomizedGenerator2::ApplyPermutationToDb(const Permutation& permutation, bool reverse)
+void NDB_RandomizedGenerator2::ApplyPermutationToDb(const Permutation& permutation, bool reverse)
 {
     for (auto& record : _db)
     {
@@ -166,7 +166,7 @@ void NDBRandomizedGenerator2::ApplyPermutationToDb(const Permutation& permutatio
     std::sort(_db.begin(), _db.end());
 }
 
-void NDBRandomizedGenerator2::GetModifiedRecords(const DBRecord &record, std::vector<int> &bits, int length, std::vector<std::vector<std::pair<int, bool>>>& result)
+void NDB_RandomizedGenerator2::GetModifiedRecords(const DBRecord &record, std::vector<int> &bits, int length, std::vector<std::vector<std::pair<int, bool>>>& result)
 {
     if (bits.empty())
     {

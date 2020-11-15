@@ -6,10 +6,10 @@ set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
 add_executable(Application
         main.cpp
         NDB.h NDB.cpp
-        Generators/NDBPrefixGenerator.h Generators/NDBPrefixGenerator.cpp
-        Generators/NDBRandomizedGenerator.cpp Generators/NDBRandomizedGenerator.h
-        Generators/NDBRandomizedGenerator2.cpp Generators/NDBRandomizedGenerator2.h
-        Generators/NDBGenerator.h Generators/NDBGenerator.cpp
+        Generators/NDB_PrefixGenerator.h Generators/NDB_PrefixGenerator.cpp
+        Generators/NDB_RandomizedGenerator.cpp Generators/NDB_RandomizedGenerator.h
+        Generators/NDB_RandomizedGenerator2.cpp Generators/NDB_RandomizedGenerator2.h
+        Generators/NDB_Generator.h Generators/NDB_Generator.cpp
         VectorView.h
         Validator/NDBValidator.h Validator/NDBValidator.cpp
         DB.h DB.cpp
@@ -21,4 +21,5 @@ add_executable(Application
         Streams/Stream.h
         Streams/DimacsFileStream.h Streams/DimacsFileStream.cpp
         Streams/FileStream.h Streams/FileStream.cpp
-        Streams/NDBStream.h Streams/NDBStream.cpp)
+        Streams/NDBStream.h Streams/NDBStream.cpp
+        Generators/NDB_QHiddenGenerator.cpp Generators/NDB_QHiddenGenerator.h)

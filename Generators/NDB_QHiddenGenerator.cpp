@@ -16,8 +16,7 @@ NDB_QHiddenGenerator::NDB_QHiddenGenerator(int length, double probabilityRatio, 
 
 size_t NDB_QHiddenGenerator::Generate(Stream &output)
 {
-    if (_db.empty()) return Generate0Hidden(output);
-
+    assert(!_db.empty());
     std::size_t count = 0, n = ceil(_length * _recordCountRatio);
     const auto& dbRecord = _db[0];
     while (count != n)
@@ -45,30 +44,9 @@ size_t NDB_QHiddenGenerator::Generate(Stream &output)
         output << record.ToString() << "\n";
         ++count;
 
-        std::cout << "\r" << count << "/" << n;
+        std::cout << "\r" << count << "/" << n << "    ";
     }
     std::cout << std::endl;
-    return count;
-}
-
-size_t NDB_QHiddenGenerator::Generate0Hidden(Stream &output)
-{
-    std::size_t count = 0, n = ceil(_length * _recordCountRatio);
-
-    while (count != n)
-    {
-        auto indices = _random.GetRandomIndices(_length, _definedPositionCount);
-        NDBRecord record{ std::vector<NDBChar>(_length, NDBChar::Wildcard) };
-        for (auto index : indices)
-        {
-            record.Characters()[index] = (_random.GetRandomInt(0, 1) == 1 ? NDBChar::Bit1 : NDBChar::Bit0);
-        }
-        output << record.ToString() << "\n";
-        ++count;
-
-        std::cout << count << "/" << n << std::endl;
-    }
-
     return count;
 }
 

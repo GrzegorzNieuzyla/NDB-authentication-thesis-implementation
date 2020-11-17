@@ -10,7 +10,6 @@ public:
     size_t Generate(Stream &output) override;
     static std::string GetName();
 private:
-    size_t Generate0Hidden(Stream& output);
     double _probabilityRatio;
     double _recordCountRatio;
     int _definedPositionCount;

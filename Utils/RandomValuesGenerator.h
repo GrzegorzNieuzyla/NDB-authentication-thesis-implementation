@@ -46,6 +46,7 @@ public:
             if (indices.find(index) == indices.end())
             {
                 result.push_back(container[index]);
+                indices.emplace(index);
             }
         }
         return result;

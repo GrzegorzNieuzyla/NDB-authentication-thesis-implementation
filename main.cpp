@@ -8,6 +8,8 @@
 #include "Streams/NDBStream.h"
 #include "Streams/DimacsFileStream.h"
 #include "Generators/NDB_QHiddenGenerator.h"
+#include "Generators/NDB_KHiddenGenerator.h"
+#include "Generators/NDB_HybridGenerator.h"
 #include <cstdlib>
 #include <chrono>
 #include <algorithm>
@@ -15,6 +17,8 @@
 
 const DB ReferenceDB = {{0,0,0,1}, {0,1,0,0}, {1,0,0,0}, {1,0,1,1}};
 const DB ReferenceDB2 = {{0,0,0,0}, {0,1,1,0}, {0,0,1,0}, {1,1,0,1}};
+
+const DBRecord ReferenceRecord = {1,0,0,1,0};
 
 void Assert(bool value)
 {
@@ -67,23 +71,21 @@ std::tuple<size_t, size_t, std::string> DoBenchmark(int count, int length)
 
     Benchmark benchmark;
     benchmark.Start();
+    //std::vector<double> prop = { 0.5, 0.9 };
     auto record_count = Generator(*db.begin(), length).Generate(file);
     auto elapsed_time = benchmark.GetElapsedTime();
     file.WriteHeader(length, record_count);
     auto memory = Benchmark::GetMemoryUsage();
-//    Assert(NDBValidator::ValidateFromFile(db, filename));
+    PrintDB(db);
+    //Assert(NDBValidator::ValidateFromFile(db, filename));
     return {elapsed_time, record_count, memory};
 }
 
 int main()
 {
-//    auto db = GenerateRandomDB(1, 20);
-//    NDBStream ndb;
-//    NDB_RandomizedGenerator2(db, db.begin()->Characters().size()).Generate(ndb);
-//    NDBValidator(ndb.Ndb(), db).ValidateAllDBRecords();
     std::vector<std::pair<int, int>> cases =
             {
-                    {20,  512},
+                    {20,  300},
                     {500,  200},
                     {500,  500},
                     {500,  1000},

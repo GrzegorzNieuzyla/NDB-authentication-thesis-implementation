@@ -4,16 +4,16 @@
 #include "Generators/NDB_RandomizedGenerator2.h"
 #include "Validator/NDBValidator.h"
 #include "Utils/Benchmark.h"
-#include "Streams/FileStream.h"
+#include "Streams/NDBFileStream.h"
 #include "Streams/NDBStream.h"
 #include "Streams/DimacsFileStream.h"
 #include "Generators/NDB_QHiddenGenerator.h"
 #include "Generators/NDB_KHiddenGenerator.h"
 #include "Generators/NDB_HybridGenerator.h"
-#include <cstdlib>
 #include <chrono>
 #include <algorithm>
-#include <fstream>
+#include <filesystem>
+
 
 const DB ReferenceDB = {{0,0,0,1}, {0,1,0,0}, {1,0,0,0}, {1,0,1,1}};
 const DB ReferenceDB2 = {{0,0,0,0}, {0,1,1,0}, {0,0,1,0}, {1,1,0,1}};
@@ -62,30 +62,60 @@ std::set<DBRecord> GenerateRandomDB(int count, int length)
 }
 
 template <class Generator>
-std::tuple<size_t, size_t, std::string> DoBenchmark(int count, int length)
+std::tuple<size_t, size_t, std::string> DoBenchmarkMultiRecord(int count, int length)
+{
+    auto db = GenerateRandomDB(count, length);
+    auto filename = "../_tests/ndb_" + Generator::GetName() + "_" + std::to_string(count) + "_" + std::to_string(length)
+            + ".dimacs";
+    //NDBFileStream ndbFile(filename);
+    //NDBStream ndb(filename);
+    DimacsFileStream dimacsFile(filename);
+    Benchmark benchmark;
+    benchmark.Start();
+    auto record_count = Generator(db, length).Generate(dimacsFile);
+    // auto record_count = Generator(db, length).Generate(ndb);
+    // auto record_count = Generator(db, length).Generate(ndbFile);
+    auto elapsed_time = benchmark.GetElapsedTime();
+
+    dimacsFile.WriteHeader(length, record_count);
+    auto memory = Benchmark::GetMemoryUsage();
+    PrintDB(db);
+    //PrintNDB(ndb.Ndb());
+    //Assert(NDBValidator::ValidateFromNDBFile(db, filename));
+    return {elapsed_time, record_count, memory};
+}
+
+template <class Generator>
+std::tuple<size_t, size_t, std::string> DoBenchmarkSingleRecord(int length)
 {
     auto db = GenerateRandomDB(1, length);
-    auto filename = "../_tests/SAT/ndb_" + Generator::GetName() + "_" + std::to_string(count) + "_" + std::to_string(length)
-            + ".dimacs";
-    DimacsFileStream file(filename);
+    auto filename = "../_tests/ndb_" + Generator::GetName() + "_" + std::to_string(length); //+ ".dimacs";
+    NDBFileStream ndbFile(filename);
+    //NDBStream ndb(filename);
+    //DimacsFileStream dimacsFile(filename);
 
     Benchmark benchmark;
     benchmark.Start();
-    //std::vector<double> prop = { 0.5, 0.9 };
-    auto record_count = Generator(*db.begin(), length).Generate(file);
+    auto record_count = Generator(*db.begin(), length).Generate(ndbFile);
+    // auto record_count = Generator(*db.begin(), length).Generate(ndb);
+    // auto record_count = Generator(*db.begin(), length).Generate(ndbFile);
     auto elapsed_time = benchmark.GetElapsedTime();
-    file.WriteHeader(length, record_count);
+    // dimacsFile.WriteHeader(length, record_count);
     auto memory = Benchmark::GetMemoryUsage();
     PrintDB(db);
-    //Assert(NDBValidator::ValidateFromFile(db, filename));
+    Assert(NDBValidator::ValidateFromNDBFile(db, filename));
     return {elapsed_time, record_count, memory};
 }
 
 int main()
 {
+    namespace fs = std::filesystem;
+    if (!fs::is_directory("../_tests") || !fs::exists("../_tests")) {
+        fs::create_directory("../_tests");
+    }
     std::vector<std::pair<int, int>> cases =
             {
-                    {20,  300},
+                    {20,  1024},
                     {500,  200},
                     {500,  500},
                     {500,  1000},
@@ -100,7 +130,7 @@ int main()
 
     for (const auto& _case : cases)
     {
-        auto result = DoBenchmark<NDB_QHiddenGenerator>(_case.first, _case.second);
+        auto result = DoBenchmarkSingleRecord<NDB_HybridGenerator>(_case.second);
         std::cout << _case.first << ", " << _case.second << " - " << std::get<0>(result) << ", " << std::get<1>(result) << ", " << std::get<2>(result) << std::endl;
         break;
     }

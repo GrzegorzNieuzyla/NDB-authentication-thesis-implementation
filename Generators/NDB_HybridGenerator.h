@@ -4,7 +4,7 @@
 class NDB_HybridGenerator : public NDB_Generator
 {
 public:
-    NDB_HybridGenerator(const DBRecord& record, int length, double probabilityRatio = 0.3, double recordCountRatio = 5.5);
+    NDB_HybridGenerator(const DBRecord& record, int length, double probabilityRatio = 0.5, double recordCountRatio = 5.5);
     size_t Generate(Stream &output) override;
     static std::string GetName();
 private:

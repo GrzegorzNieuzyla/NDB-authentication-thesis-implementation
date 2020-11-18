@@ -1,3 +1,4 @@
+#include <iostream>
 #include "DimacsFileStream.h"
 
 DimacsFileStream::DimacsFileStream(const std::string &filename)
@@ -34,4 +35,14 @@ void DimacsFileStream::WriteHeader(int length, int count)
     header += std::string(HEADER_SIZE - header.size(), ' ') + '\n';
     _file << header;
     _file.flush();
+    _headerWritten = true;
+}
+
+DimacsFileStream::~DimacsFileStream()
+{
+    if (!_headerWritten)
+    {
+        std::cout << "DimacsFileStream::WriteHeader() not called" << std::endl;
+        assert(false);
+    }
 }

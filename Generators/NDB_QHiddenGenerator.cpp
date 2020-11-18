@@ -19,7 +19,7 @@ size_t NDB_QHiddenGenerator::Generate(Stream &output)
     assert(!_db.empty());
     std::size_t count = 0, n = ceil(_length * _recordCountRatio);
     const auto& dbRecord = _db[0];
-    while (count != n)
+    while (count < n)
     {
         auto indices = _random.GetRandomIndices(_length, _definedPositionCount);
         NDBRecord record{ std::vector<NDBChar>(_length, NDBChar::Wildcard) };

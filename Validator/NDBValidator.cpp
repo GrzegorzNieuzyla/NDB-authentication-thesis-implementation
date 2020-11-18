@@ -60,7 +60,7 @@ std::vector<std::pair<DBRecord, NDBRecord>> NDBValidator::ValidateRecord(const D
     return errors;
 }
 
-bool NDBValidator::ValidateFromFile(const DB& db, const std::string& filename, bool printErrors)
+bool NDBValidator::ValidateFromNDBFile(const DB& db, const std::string& filename, bool printErrors)
 {
     if (db.empty()) return true;
     bool result = true;

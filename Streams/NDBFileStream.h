@@ -2,10 +2,10 @@
 #include <fstream>
 #include "Stream.h"
 
-class FileStream : public Stream
+class NDBFileStream : public Stream
 {
 public:
-    explicit FileStream(const std::string& filename);
+    explicit NDBFileStream(const std::string& filename);
     Stream &operator<<(const std::string &string) override;
 
 private:

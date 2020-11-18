@@ -17,7 +17,7 @@ size_t NDB_KHiddenGenerator::Generate(Stream &output)
     assert(!_db.empty());
     std::size_t count = 0, n = ceil(_length * _recordCountRatio);
     const auto& dbRecord = _db[0];
-    while (count != n)
+    while (count < n)
     {
         int specifiedBitsCount = GetSpecifiedBitsCount(_random.GetRandomDouble(0, 1));
 

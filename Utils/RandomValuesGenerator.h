@@ -31,7 +31,8 @@ public:
 
     template<class T> std::vector<T> GetRandomChoice(const std::vector<T>& container, int count)
     {
-        if (count >= container.size()) return container;
+        assert(count <= container.size());
+        if (count == container.size()) return container;
         if (count >= container.size() / 4)
         {
             auto cont = container;

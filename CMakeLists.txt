@@ -20,7 +20,7 @@ add_executable(Application
         Utils/RandomSeedProvider.h
         Streams/Stream.h
         Streams/DimacsFileStream.h Streams/DimacsFileStream.cpp
-        Streams/FileStream.h Streams/FileStream.cpp
+        Streams/NDBFileStream.h Streams/NDBFileStream.cpp
         Streams/NDBStream.h Streams/NDBStream.cpp
         Generators/NDB_QHiddenGenerator.cpp Generators/NDB_QHiddenGenerator.h
         Generators/NDB_KHiddenGenerator.cpp Generators/NDB_KHiddenGenerator.h Generators/NDB_0HiddenGenerator.cpp Generators/NDB_0HiddenGenerator.h Generators/NDB_HybridGenerator.cpp Generators/NDB_HybridGenerator.h)

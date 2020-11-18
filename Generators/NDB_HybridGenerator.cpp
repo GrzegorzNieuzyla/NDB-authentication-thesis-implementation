@@ -24,7 +24,7 @@ NDB NDB_HybridGenerator::GenComplete(const Permutation& permutation)
 {
     NDB ndb;
     auto dbRecord = permutation.Apply(_db[0].Characters());
-    for (int i = _length - 2;  i >= 2; --i)
+    for (int i = _length - 1;  i >= 2; --i)
     {
         NDBRecord record{std::vector<NDBChar>(_length, NDBChar::Wildcard)};
         auto indices = _random.GetRandomIndices(i, 2);
@@ -66,7 +66,7 @@ std::size_t NDB_HybridGenerator::MakeHardReverse(const NDB &ndb, Stream &output)
 {
     std::size_t count = _length + 3, n = std::ceil(_recordCountRatio * _length);
     const auto& dbRecord = _db[0];
-    while (count != n)
+    while (count < n)
     {
         auto indices = _random.GetRandomIndices(_length, 3);
         NDBRecord record {std::vector<NDBChar>(_length, NDBChar::Wildcard)};

@@ -3,10 +3,12 @@
 #include <set>
 #include <unordered_set>
 
-class NDB_PrefixGenerator : NDB_Generator
+class NDB_PrefixGenerator : public NDB_Generator
 {
 public:
     NDB_PrefixGenerator(const std::set<DBRecord>& db, int length);
+
+    void PrintParameters() const override;
 
     [[nodiscard]] static std::string GetName()
     {

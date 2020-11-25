@@ -7,8 +7,8 @@ add_executable(Application
         main.cpp
         NDB.h NDB.cpp
         Generators/NDB_PrefixGenerator.h Generators/NDB_PrefixGenerator.cpp
+        Generators/NDB_RandomizedOldGenerator.cpp Generators/NDB_RandomizedOldGenerator.h
         Generators/NDB_RandomizedGenerator.cpp Generators/NDB_RandomizedGenerator.h
-        Generators/NDB_RandomizedGenerator2.cpp Generators/NDB_RandomizedGenerator2.h
         Generators/NDB_Generator.h Generators/NDB_Generator.cpp
         VectorView.h
         Validator/NDBValidator.h Validator/NDBValidator.cpp
@@ -23,4 +23,6 @@ add_executable(Application
         Streams/NDBFileStream.h Streams/NDBFileStream.cpp
         Streams/NDBStream.h Streams/NDBStream.cpp
         Generators/NDB_QHiddenGenerator.cpp Generators/NDB_QHiddenGenerator.h
-        Generators/NDB_KHiddenGenerator.cpp Generators/NDB_KHiddenGenerator.h Generators/NDB_0HiddenGenerator.cpp Generators/NDB_0HiddenGenerator.h Generators/NDB_HybridGenerator.cpp Generators/NDB_HybridGenerator.h)
+        Generators/NDB_KHiddenGenerator.cpp Generators/NDB_KHiddenGenerator.h Generators/NDB_0HiddenGenerator.cpp Generators/NDB_0HiddenGenerator.h Generators/NDB_HybridGenerator.cpp Generators/NDB_HybridGenerator.h CLIInterface.cpp CLIInterface.h)
+
+target_link_libraries(Application boost_program_options)

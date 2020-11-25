@@ -15,6 +15,7 @@ public:
     NDB_Generator() = default;
     NDB_Generator(const std::set<DBRecord>& db, int length);
     virtual std::size_t Generate(Stream& output) = 0;
+    virtual void PrintParameters() const = 0;
 protected:
     [[nodiscard]] std::vector<DBRecord> GetPatternsNotInDbWithPrefix(DBRecord prefix) const;
     [[nodiscard]] std::vector<DBRecord> GetPatternsNotInDBWithPrefixes(const std::vector<DBRecord>& Wi) const;

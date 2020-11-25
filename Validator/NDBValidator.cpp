@@ -1,5 +1,5 @@
 #include "NDBValidator.h"
-#include "../Generators/NDB_RandomizedGenerator.h"
+#include "../Generators/NDB_RandomizedOldGenerator.h"
 #include "../Utils/NDBUtils.h"
 #include <utility>
 #include <iostream>

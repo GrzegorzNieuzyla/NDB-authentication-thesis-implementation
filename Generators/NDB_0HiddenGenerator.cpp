@@ -1,8 +1,10 @@
 #include "NDB_0HiddenGenerator.h"
 
-NDB_0HiddenGenerator::NDB_0HiddenGenerator(int recordCountRatio, int definedPositionCount) : _recordCountRatio(
+NDB_0HiddenGenerator::NDB_0HiddenGenerator(int length, double recordCountRatio, int definedPositionCount) : _recordCountRatio(
         recordCountRatio), _definedPositionCount(definedPositionCount)
-{}
+{
+    _length = length;
+}
 
 size_t NDB_0HiddenGenerator::Generate(Stream &output)
 {
@@ -29,4 +31,12 @@ size_t NDB_0HiddenGenerator::Generate(Stream &output)
 std::string NDB_0HiddenGenerator::GetName()
 {
     return "0-Hidden";
+}
+
+void NDB_0HiddenGenerator::PrintParameters() const
+{
+    std::cout << "Algorithm: " << GetName() << std::endl;
+    std::cout << "l: " << _length << std::endl;
+    std::cout << "r: " << _recordCountRatio << std::endl;
+    std::cout << "k: " << _definedPositionCount << std::endl;
 }

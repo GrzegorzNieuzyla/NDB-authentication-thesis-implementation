@@ -70,6 +70,21 @@ public:
         return dist(_rng);
     }
 
+    std::set<DBRecord> GenerateRandomDB(int count, int length)
+    {
+        std::set<DBRecord> db;
+        for (int i = 0; i < count; i++)
+        {
+            DBRecord record;
+            for (int j = 0; j < length; j++)
+            {
+                record.Characters().emplace_back(GetRandomInt(0, 1) == 1);
+            }
+            db.emplace(std::move(record));
+        }
+        return db;
+    }
+
 private:
     std::mt19937 _rng;
 };

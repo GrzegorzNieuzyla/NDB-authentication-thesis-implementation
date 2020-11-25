@@ -93,3 +93,11 @@ std::string NDB_HybridGenerator::GetName()
 {
     return "Hybrid";
 }
+
+void NDB_HybridGenerator::PrintParameters() const
+{
+    std::cout << "Algorithm: " << GetName() << std::endl;
+    std::cout << "l: " << _length << std::endl;
+    std::cout << "q: " << _probabilityRatio << std::endl;
+    std::cout << "r: " << _recordCountRatio << std::endl;
+}

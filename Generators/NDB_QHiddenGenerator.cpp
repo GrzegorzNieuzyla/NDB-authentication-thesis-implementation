@@ -8,12 +8,6 @@ NDB_QHiddenGenerator::NDB_QHiddenGenerator(const DBRecord& record, int length, d
     _length = length;
 }
 
-NDB_QHiddenGenerator::NDB_QHiddenGenerator(int length, double probabilityRatio, double recordCountRatio, int definedPositionCount)
-    : _probabilityRatio(probabilityRatio), _recordCountRatio(recordCountRatio), _definedPositionCount(definedPositionCount)
-{
-    _length = length;
-}
-
 size_t NDB_QHiddenGenerator::Generate(Stream &output)
 {
     assert(!_db.empty());
@@ -53,4 +47,13 @@ size_t NDB_QHiddenGenerator::Generate(Stream &output)
 std::string NDB_QHiddenGenerator::GetName()
 {
     return "Q-Hidden";
+}
+
+void NDB_QHiddenGenerator::PrintParameters() const
+{
+    std::cout << "Algorithm: " << GetName() << std::endl;
+    std::cout << "l: " << _length << std::endl;
+    std::cout << "q: " << _probabilityRatio << std::endl;
+    std::cout << "r: " << _recordCountRatio << std::endl;
+    std::cout << "k: " << _definedPositionCount << std::endl;
 }

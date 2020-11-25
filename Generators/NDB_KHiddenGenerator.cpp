@@ -1,5 +1,5 @@
 #include "NDB_KHiddenGenerator.h"
-
+#include <boost/algorithm/string.hpp>
 #include <utility>
 
 NDB_KHiddenGenerator::NDB_KHiddenGenerator(const DBRecord& record, int length, std::vector<double> probabilityRatios, double recordCountRatio, int definedPositionCount)
@@ -56,4 +56,15 @@ int NDB_KHiddenGenerator::GetSpecifiedBitsCount(double rand)
             return i+1;
     }
     return static_cast<int>(_probabilityRatios.size()) + 1;
+}
+
+void NDB_KHiddenGenerator::PrintParameters() const
+{
+    std::cout << "Algorithm: " << GetName() << std::endl;
+    std::cout << "l: " << _length << std::endl;
+    std::vector<std::string> param;
+    std::transform(_probabilityRatios.begin(), _probabilityRatios.end(), param.begin(), [](const auto& p){ return std::to_string(p);});
+    std::cout << "p: " << boost::algorithm::join(param, " ") << std::endl;
+    std::cout << "r: " << _recordCountRatio << std::endl;
+    std::cout << "k: " << _definedPositionCount << std::endl;
 }

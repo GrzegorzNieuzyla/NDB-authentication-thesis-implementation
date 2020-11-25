@@ -4,11 +4,12 @@
 class NDB_0HiddenGenerator : public NDB_Generator
 {
 public:
-    NDB_0HiddenGenerator(int recordCountRatio, int definedPositionCount);
+    NDB_0HiddenGenerator(int length, double recordCountRatio, int definedPositionCount);
+    void PrintParameters() const override;
     size_t Generate(Stream &output) override;
     static std::string GetName();
 private:
-    int _recordCountRatio;
+    double _recordCountRatio;
     int _definedPositionCount;
 };
 

@@ -21,3 +21,11 @@ std::size_t NDB_PrefixGenerator::Generate(Stream& output)
 
     return count;
 }
+
+void NDB_PrefixGenerator::PrintParameters() const
+{
+    std::cout << "Algorithm: " << GetName() << std::endl;
+    std::cout << "c: " << _db.size() << std::endl;
+    std::cout << "l: " << _length << std::endl;
+}
+

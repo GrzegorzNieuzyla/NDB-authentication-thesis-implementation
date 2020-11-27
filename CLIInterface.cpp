@@ -11,6 +11,7 @@
 #include "Streams/DimacsFileStream.h"
 #include "Streams/NDBFileStream.h"
 #include "Utils/Benchmark.h"
+#include "Tests/SuperfluousStringTest.h"
 
 
 namespace po = boost::program_options;
@@ -19,13 +20,11 @@ namespace alg = boost::algorithm;
 CLIInterface::CLIInterface(int argc, char* argv[])
 {
     SetupCommandLine(argc, argv);
-    SetupGenerator();
 }
 
 void CLIInterface::SetupGenerator()
 {
     RandomValuesGenerator rng;
-    alg::to_lower(_algorithm);
 
     if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
@@ -88,6 +87,8 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("specified-bits,k", po::value<int>(&_specifiedBits), "Specified bits count")
                 ("output-file,o", po::value<std::string>(&_outputFile), "Output file")
                 ("format,f", po::value<std::string>(&_generationMethod), "Output format (dimacs | ndb)")
+                ("superfluous,s", "Don't generate file, check for superfluous strings")
+                ("checksum-bits,cb", po::value<int>(&_checksumBits), "Checksum bits count")
                 ("help,h", "Produce help message")
                 ("algorithm,a", po::value<std::string>(&_algorithm)->required(), algorithms.c_str());
 
@@ -110,6 +111,8 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
             std::cerr << "Incorrect parameter value" << std::endl;
             exit(1);
         }
+        _superfluousStringTesting = _variablesMap.count("superfluous");
+        alg::to_lower(_algorithm);
     }
     catch (po::required_option& e)
     {
@@ -125,6 +128,22 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
 
 void CLIInterface::Run()
 {
+    if (_superfluousStringTesting)
+    {
+        if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+        {
+            SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits);
+            test.Run();
+        }
+        else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+        {
+            SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatios, _recordCountRatio, _specifiedBits);
+            test.Run();
+        }
+        return;
+    }
+
+    SetupGenerator();
     _generator->PrintParameters();
     std::unique_ptr<Stream> stream;
     alg::to_lower(_generationMethod);

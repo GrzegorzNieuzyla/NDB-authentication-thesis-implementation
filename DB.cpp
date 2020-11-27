@@ -1,6 +1,7 @@
 #include "DB.h"
 #include <utility>
 #include <sstream>
+#include <cassert>
 
 DBRecord::DBRecord(std::vector<bool> record) : _record(std::move(record))
 {}
@@ -70,4 +71,33 @@ DBRecord::DBRecord(std::vector<bool>::const_iterator begin, std::vector<bool>::c
 : _record(begin, end)
 {
 
+}
+
+std::vector<unsigned char> DBRecord::ToBytes() const
+{
+    assert(Size() % 8 == 0);
+    std::vector<unsigned char> result;
+    result.resize(Size() / 8);
+    for (int i = 0; i < Size() / 8; ++i)
+    {
+        result[i] = 0;
+        for (unsigned char j = 0; j < 8; ++j)
+        {
+            if (Characters()[8*i + j])
+                result[i] |= static_cast<unsigned char>(1u << (7 - j));
+        }
+    }
+
+    return result;
+}
+
+void DBRecord::AppendBytes(const std::vector<unsigned char>& bytes)
+{
+    for (auto byte : bytes)
+    {
+        for (int i = 7; i >= 0; --i)
+        {
+            Characters().push_back((byte & (1u << static_cast<unsigned>(i))) > 0);
+        }
+    }
 }

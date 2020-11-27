@@ -8,7 +8,7 @@ class NDBStream : public Stream
 {
 public:
     Stream &operator<<(const std::string &string) override;
-    [[nodiscard]] const NDB& Ndb() const;
+    [[nodiscard]] NDB& Ndb();
 private:
     NDB _ndb;
 };

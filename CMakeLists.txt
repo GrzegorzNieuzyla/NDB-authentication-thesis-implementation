@@ -3,7 +3,8 @@ project(Application)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS_RELEASE "-Ofast")
-add_executable(Application
+find_library(zChaff sat .)
+add_executable(NDBGenerator
         main.cpp
         NDB.h NDB.cpp
         Generators/NDB_PrefixGenerator.h Generators/NDB_PrefixGenerator.cpp
@@ -23,6 +24,7 @@ add_executable(Application
         Streams/NDBFileStream.h Streams/NDBFileStream.cpp
         Streams/NDBStream.h Streams/NDBStream.cpp
         Generators/NDB_QHiddenGenerator.cpp Generators/NDB_QHiddenGenerator.h
-        Generators/NDB_KHiddenGenerator.cpp Generators/NDB_KHiddenGenerator.h Generators/NDB_0HiddenGenerator.cpp Generators/NDB_0HiddenGenerator.h Generators/NDB_HybridGenerator.cpp Generators/NDB_HybridGenerator.h CLIInterface.cpp CLIInterface.h)
+        Generators/NDB_KHiddenGenerator.cpp Generators/NDB_KHiddenGenerator.h Generators/NDB_0HiddenGenerator.cpp Generators/NDB_0HiddenGenerator.h Generators/NDB_HybridGenerator.cpp Generators/NDB_HybridGenerator.h CLIInterface.cpp CLIInterface.h Interfaces/ZChaffInterface.cpp Interfaces/ZChaffInterface.h Tests/SuperfluousStringTest.cpp Tests/SuperfluousStringTest.h)
 
-target_link_libraries(Application boost_program_options)
+target_link_libraries(NDBGenerator boost_program_options)
+target_link_libraries(NDBGenerator ${zChaff})

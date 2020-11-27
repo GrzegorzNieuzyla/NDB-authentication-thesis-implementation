@@ -12,7 +12,7 @@ public:
 private:
     void SetupCommandLine(int argc, char* argv[]);
     void SetupGenerator();
-    static std::string GetTimeElapsed(std::size_t seconds) ;
+    static std::string GetTimeElapsed(std::size_t seconds);
     std::unique_ptr<NDB_Generator> _generator;
     std::vector<std::string> _arguments;
     boost::program_options::variables_map _variablesMap;
@@ -28,4 +28,7 @@ private:
 
     std::string _outputFile;
     std::string _generationMethod = "dimacs";
+
+    bool _superfluousStringTesting = false;
+    int _checksumBits = 1;
 };

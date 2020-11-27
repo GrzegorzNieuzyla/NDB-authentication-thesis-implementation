@@ -1,7 +1,7 @@
 #include "NDBStream.h"
 
 
-const NDB &NDBStream::Ndb() const
+NDB &NDBStream::Ndb()
 {
     return _ndb;
 }

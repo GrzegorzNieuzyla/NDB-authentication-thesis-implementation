@@ -24,9 +24,9 @@ public:
     [[nodiscard]] std::vector<bool>::const_iterator end() const noexcept;
     bool operator<(const DBRecord& other) const;
     [[nodiscard]] std::string ToString() const;
-
+    [[nodiscard]] std::vector<unsigned char> ToBytes() const;
     [[nodiscard]] std::size_t Size() const;
-
+    void AppendBytes(const std::vector<unsigned char>& bytes);
 private:
     std::vector<bool> _record;
 };

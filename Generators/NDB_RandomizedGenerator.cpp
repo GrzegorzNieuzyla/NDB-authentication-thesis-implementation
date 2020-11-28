@@ -196,5 +196,10 @@ void NDB_RandomizedGenerator::PrintParameters() const
     std::cout << "l: " << _length << std::endl;
 }
 
+FileUtils::CsvFileData NDB_RandomizedGenerator::GetCsvData() const
+{
+    return FileUtils::CsvFileData {.algorithm=GetName(), .length = _length, .count = static_cast<int>(_db.size())};
+}
+
 
 

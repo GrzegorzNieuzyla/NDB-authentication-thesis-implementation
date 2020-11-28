@@ -101,3 +101,8 @@ void NDB_HybridGenerator::PrintParameters() const
     std::cout << "q: " << _probabilityRatio << std::endl;
     std::cout << "r: " << _recordCountRatio << std::endl;
 }
+
+FileUtils::CsvFileData NDB_HybridGenerator::GetCsvData() const
+{
+    return FileUtils::CsvFileData {.algorithm=GetName(), .length = _length, .probabilityRatio = _probabilityRatio, .recordCountRatio = _recordCountRatio };
+}

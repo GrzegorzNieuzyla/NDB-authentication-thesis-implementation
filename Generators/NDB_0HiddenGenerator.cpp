@@ -40,3 +40,8 @@ void NDB_0HiddenGenerator::PrintParameters() const
     std::cout << "r: " << _recordCountRatio << std::endl;
     std::cout << "k: " << _definedPositionCount << std::endl;
 }
+
+FileUtils::CsvFileData NDB_0HiddenGenerator::GetCsvData() const
+{
+    return FileUtils::CsvFileData {.algorithm=GetName(), .length = _length, .recordCountRatio = _recordCountRatio, .specifiedBits = _definedPositionCount };
+}

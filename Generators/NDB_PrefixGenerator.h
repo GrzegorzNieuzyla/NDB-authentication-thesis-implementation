@@ -8,6 +8,8 @@ class NDB_PrefixGenerator : public NDB_Generator
 public:
     NDB_PrefixGenerator(const std::set<DBRecord>& db, int length);
 
+    FileUtils::CsvFileData GetCsvData() const override;
+
     void PrintParameters() const override;
 
     [[nodiscard]] static std::string GetName()

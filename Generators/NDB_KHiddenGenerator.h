@@ -8,6 +8,9 @@ public:
     size_t Generate(Stream &output) override;
     void PrintParameters() const override;
     static std::string GetName();
+
+    FileUtils::CsvFileData GetCsvData() const override;
+
 private:
     int GetSpecifiedBitsCount(double rand);
     std::vector<double> _probabilityRatios;

@@ -16,6 +16,8 @@ public:
         return "Randomized";
     }
 
+    FileUtils::CsvFileData GetCsvData() const override;
+
 private:
     void ApplyPermutationToDb(const Permutation& permutation, bool reverse=false);
     static void GetModifiedRecords(const DBRecord& record, std::vector<int> &bits, int length, std::vector<std::vector<std::pair<int, bool>>>& result);

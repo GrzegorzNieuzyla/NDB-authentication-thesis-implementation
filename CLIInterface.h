@@ -22,19 +22,21 @@ private:
     boost::program_options::options_description _description {"Allowed commands"};
 
     std::string _algorithm;
-    int _recordLength = 256;
-    double _probabilityRatio = 0.5;
-    double _recordCountRatio = 5.5;
-    int _specifiedBits = 3;
-    int _recordCount = 1;
+    std::vector<int> _recordLength = {256};
+    std::vector<double> _probabilityRatio = {0.5};
+    std::vector<double> _recordCountRatio = {5.5};
+    std::vector<int> _specifiedBits = {3};
+    std::vector<int> _recordCount = {1};
     std::vector<double> _probabilityRatios = {0.25, 0.5, 0.25};
 
     std::string _outputFile;
     std::string _generationMethod = "dimacs";
 
     bool _superfluousStringTesting = false;
-    int _checksumBits = 1;
+    std::vector<int> _checksumBits = {0};
 
     std::string _dbRecord;
-    bool _distributionTesting;
+    bool _distributionTesting = false;
+
+    bool _batchMode = false;
 };

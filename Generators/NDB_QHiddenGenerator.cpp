@@ -57,3 +57,8 @@ void NDB_QHiddenGenerator::PrintParameters() const
     std::cout << "r: " << _recordCountRatio << std::endl;
     std::cout << "k: " << _definedPositionCount << std::endl;
 }
+
+FileUtils::CsvFileData NDB_QHiddenGenerator::GetCsvData() const
+{
+    return FileUtils::CsvFileData {.algorithm=GetName(), .length = _length, .probabilityRatio = _probabilityRatio, .recordCountRatio = _recordCountRatio, .specifiedBits = _definedPositionCount};
+}

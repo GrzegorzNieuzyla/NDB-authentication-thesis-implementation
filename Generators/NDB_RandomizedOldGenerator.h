@@ -8,6 +8,9 @@ class NDB_RandomizedOldGenerator : public NDB_Generator
 public:
     NDB_RandomizedOldGenerator(const std::set<DBRecord>& db, int length);
     void PrintParameters() const override;
+
+    FileUtils::CsvFileData GetCsvData() const override;
+
     std::size_t Generate(Stream& output) override;
     static std::string GetName()
     {

@@ -9,6 +9,10 @@ public:
     size_t Generate(Stream &output) override;
     static std::string GetName();
 private:
+public:
+    FileUtils::CsvFileData GetCsvData() const override;
+
+private:
     double _recordCountRatio;
     int _definedPositionCount;
 };

@@ -73,3 +73,8 @@ void NDB_KHiddenGenerator::PrintParameters() const
     std::cout << "r: " << _recordCountRatio << std::endl;
     std::cout << "k: " << _definedPositionCount << std::endl;
 }
+
+FileUtils::CsvFileData NDB_KHiddenGenerator::GetCsvData() const
+{
+    return FileUtils::CsvFileData {.algorithm=GetName(), .length = _length, .probabilityRatios = _probabilityRatios, .recordCountRatio = _recordCountRatio, .specifiedBits=_definedPositionCount};
+}

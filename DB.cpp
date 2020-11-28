@@ -101,3 +101,15 @@ void DBRecord::AppendBytes(const std::vector<unsigned char>& bytes)
         }
     }
 }
+
+DBRecord DBRecord::FromString(const std::string &string)
+{
+    DBRecord record;
+    for (auto ch : string)
+    {
+        if (ch != '0' && ch != '1') throw std::invalid_argument("Invalid string");
+        record.Characters().push_back(ch == '1');
+    }
+
+    return record;
+}

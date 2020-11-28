@@ -1,6 +1,7 @@
 #include "CLIInterface.h"
 #include <iostream>
 #include <boost/algorithm/string.hpp>
+#include <iomanip>
 #include "Generators/NDB_PrefixGenerator.h"
 #include "Generators/NDB_QHiddenGenerator.h"
 #include "Generators/NDB_KHiddenGenerator.h"
@@ -12,6 +13,8 @@
 #include "Streams/NDBFileStream.h"
 #include "Utils/Benchmark.h"
 #include "Tests/SuperfluousStringTest.h"
+#include "Tests/DistributionTest.h"
+#include "Streams/NDBStream.h"
 
 
 namespace po = boost::program_options;
@@ -22,23 +25,18 @@ CLIInterface::CLIInterface(int argc, char* argv[])
     SetupCommandLine(argc, argv);
 }
 
-void CLIInterface::SetupGenerator()
+void CLIInterface::SetupGenerator(const DB& db)
 {
-    RandomValuesGenerator rng;
-
     if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(_recordCount, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_PrefixGenerator(db, _recordLength));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_RandomizedOldGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(_recordCount, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedOldGenerator(db, _recordLength));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(_recordCount, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedGenerator(db, _recordLength));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_0HiddenGenerator::GetName()))
@@ -47,17 +45,14 @@ void CLIInterface::SetupGenerator()
     }
     else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(1, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_QHiddenGenerator(*db.begin(), _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(1, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_KHiddenGenerator(*db.begin(), _recordLength, _probabilityRatios, _recordCountRatio, _specifiedBits));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
     {
-        auto db = rng.GenerateRandomDB(1, _recordLength);
         _generator = std::unique_ptr<NDB_Generator>(new NDB_HybridGenerator(*db.begin(), _recordLength, _probabilityRatio, _recordCountRatio));
     }
     else
@@ -89,6 +84,8 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("format,f", po::value<std::string>(&_generationMethod), "Output format (dimacs | ndb)")
                 ("superfluous,s", "Don't generate file, check for superfluous strings")
                 ("checksum-bits,cb", po::value<int>(&_checksumBits), "Checksum bits count")
+                ("db-record", po::value<std::string>(&_dbRecord), "Specify DB record")
+                ("distribution", "Run distribution test")
                 ("help,h", "Produce help message")
                 ("algorithm,a", po::value<std::string>(&_algorithm)->required(), algorithms.c_str());
 
@@ -112,6 +109,9 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
             exit(1);
         }
         _superfluousStringTesting = _variablesMap.count("superfluous");
+        _distributionTesting = _variablesMap.count("distribution");
+        if (!_dbRecord.empty())
+            _recordLength = _dbRecord.size();
         alg::to_lower(_algorithm);
     }
     catch (po::required_option& e)
@@ -130,29 +130,58 @@ void CLIInterface::Run()
 {
     if (_superfluousStringTesting)
     {
-        if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
-        {
-            SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits);
-            test.Run();
-        }
-        else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
-        {
-            SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatios, _recordCountRatio, _specifiedBits);
-            test.Run();
-        }
-        return;
+        RunSuperfluousStringsTest();
     }
+    else if (_distributionTesting)
+    {
+        RunDistributionTest();
+    }
+    else
+    {
+        RunGenerator();
+    }
+}
 
-    SetupGenerator();
+std::string CLIInterface::GetTimeElapsed(std::size_t seconds)
+{
+    if (seconds < 60) return std::to_string(seconds) + "s";
+    if (seconds < 3600) return std::to_string(seconds / 60) + "m" + std::to_string(seconds % 60) + "s";
+    return std::to_string(seconds / 3600) + "h" + std::to_string((seconds % 3600) / 60) + "m" + std::to_string(seconds % 60) + "s";
+}
+
+void CLIInterface::RunSuperfluousStringsTest()
+{
+    if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+    {
+        SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits);
+        test.Run();
+    }
+    else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+    {
+        SuperfluousStringTest test(SuperfluousStringTest::GetChecksumType(_checksumBits), _recordLength, _probabilityRatios, _recordCountRatio, _specifiedBits);
+        test.Run();
+    }
+}
+
+void CLIInterface::RunGenerator()
+{
+    if (!_dbRecord.empty())
+    {
+        SetupGenerator(DB {DBRecord::FromString(_dbRecord)});
+    }
+    else
+    {
+        SetupGenerator(RandomValuesGenerator().GenerateRandomDB(_recordCount, _recordLength));
+    }
     _generator->PrintParameters();
     std::unique_ptr<Stream> stream;
     alg::to_lower(_generationMethod);
     if (_outputFile.empty())
     {
         _outputFile = _algorithm + "_" +
-                (_algorithm == NDB_PrefixGenerator::GetName() || _algorithm == NDB_RandomizedOldGenerator::GetName() ||
-                 _algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_recordCount) + "_" : "") +
-                 std::to_string(_recordLength);
+                      (_algorithm == NDB_PrefixGenerator::GetName() || _algorithm == NDB_RandomizedOldGenerator::GetName() ||
+                       _algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_recordCount) + "_" : "") +
+                      std::to_string(_recordLength);
     }
 
 
@@ -187,12 +216,83 @@ void CLIInterface::Run()
     {
         dynamic_cast<DimacsFileStream*>(stream.get())->WriteHeader(_recordLength, count);
     }
-
 }
 
-std::string CLIInterface::GetTimeElapsed(std::size_t seconds)
+void CLIInterface::RunDistributionTest()
 {
-    if (seconds < 60) return std::to_string(seconds) + "s";
-    if (seconds < 3600) return std::to_string(seconds / 60) + "m" + std::to_string(seconds % 60) + "s";
-    return std::to_string(seconds / 3600) + "h" + std::to_string((seconds % 3600) / 60) + "m" + std::to_string(seconds % 60) + "s";
+    if (!_dbRecord.empty())
+    {
+        SetupGenerator(DB {DBRecord::FromString(_dbRecord)});
+    }
+    else
+    {
+        SetupGenerator(RandomValuesGenerator().GenerateRandomDB(1, _recordLength));
+    }
+    NDBStream ndb;
+    _generator->Generate(ndb);
+    auto result = DistributionTest::CalculateProbability(ndb.Ndb());
+    std::cout << "\t";
+    for (int i = 1; i <= _recordLength; ++i)
+        std::cout << i << '\t';
+    std::cout << std::endl;
+
+    for (auto ch : {NDBChar::Bit0, NDBChar::Bit1, NDBChar::Wildcard})
+    {
+        std::cout << (ch == NDBChar::Bit0 ? '0' : (ch == NDBChar::Bit1 ? '1' : '*')) << ":\t";
+        for (auto i : result[ch])
+            std::cout << std::setprecision(3) << i << '\t';
+        std::cout << std::accumulate(result[ch].begin(), result[ch].end(), 0.0)  / result[ch].size();
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+    auto resultDefined = DistributionTest::CalculateProbabilityForDefined(ndb.Ndb());
+
+    for (auto ch : {NDBChar::Bit0, NDBChar::Bit1})
+    {
+        std::cout << (ch == NDBChar::Bit0 ? '0' : '1') << ":\t";
+        for (auto i : resultDefined[ch])
+            std::cout << std::setprecision(3) << i << '\t';
+        std::cout << std::accumulate(resultDefined[ch].begin(), resultDefined[ch].end(), 0.0) / resultDefined[ch].size();
+        std::cout << std::endl;
+    }
+    std::cout << std::endl;
+
+    auto entropy = DistributionTest::CalculateEntropy(ndb.Ndb());
+    auto gini = DistributionTest::CalculateGini(ndb.Ndb());
+    std::cout << "Ent:\t";
+    for (auto val : entropy)
+    {
+        std::cout << val << '\t';
+    }
+    std::cout << std::accumulate(entropy.begin(), entropy.end(), 0.0) / entropy.size();
+    std::cout << std::endl;
+
+    std::cout << "Gin:\t";
+
+    for (auto val : gini)
+    {
+        std::cout << val << '\t';
+    }
+    std::cout << std::accumulate(gini.begin(), gini.end(), 0.0) / gini.size();
+    std::cout << std::endl;
+    std::cout << std::endl;
+
+    entropy = DistributionTest::CalculateEntropyForDefined(ndb.Ndb());
+    gini = DistributionTest::CalculateGiniForDefined(ndb.Ndb());
+    std::cout << "Ent:\t";
+    for (auto val : entropy)
+    {
+        std::cout << val << '\t';
+    }
+    std::cout << std::accumulate(entropy.begin(), entropy.end(), 0.0) / entropy.size();
+    std::cout << std::endl;
+
+    std::cout << "Gin:\t";
+
+    for (auto val : gini)
+    {
+        std::cout << val << '\t';
+    }
+    std::cout << std::accumulate(gini.begin(), gini.end(), 0.0) / gini.size();
+    std::cout << std::endl;
 }

@@ -11,7 +11,10 @@ public:
     void Run();
 private:
     void SetupCommandLine(int argc, char* argv[]);
-    void SetupGenerator();
+    void SetupGenerator(const DB& db);
+    void RunGenerator();
+    void RunSuperfluousStringsTest();
+    void RunDistributionTest();
     static std::string GetTimeElapsed(std::size_t seconds);
     std::unique_ptr<NDB_Generator> _generator;
     std::vector<std::string> _arguments;
@@ -24,11 +27,14 @@ private:
     double _recordCountRatio = 5.5;
     int _specifiedBits = 3;
     int _recordCount = 1;
-    std::vector<double> _probabilityRatios = {0.25, 0.5, 0.75};
+    std::vector<double> _probabilityRatios = {0.25, 0.5, 0.25};
 
     std::string _outputFile;
     std::string _generationMethod = "dimacs";
 
     bool _superfluousStringTesting = false;
     int _checksumBits = 1;
+
+    std::string _dbRecord;
+    bool _distributionTesting;
 };

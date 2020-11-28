@@ -15,7 +15,7 @@ public:
 
     DBRecord(std::vector<bool>::iterator begin, std::vector<bool>::iterator end);
     DBRecord(std::vector<bool>::const_iterator begin, std::vector<bool>::const_iterator end);
-
+    static DBRecord FromString(const std::string& string);
     [[nodiscard]] const std::vector<bool>& Characters() const;
     std::vector<bool>& Characters();
     std::vector<bool>::iterator begin() noexcept;

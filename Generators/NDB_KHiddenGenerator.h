@@ -11,6 +11,7 @@ public:
 private:
     int GetSpecifiedBitsCount(double rand);
     std::vector<double> _probabilityRatios;
+    std::vector<double> _accumulatedProbabilityRatios;
     double _recordCountRatio;
     int _definedPositionCount;
 };

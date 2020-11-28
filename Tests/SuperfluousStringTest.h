@@ -34,8 +34,8 @@ private:
     };
     bool Check(const DBRecord& record);
     void Pad(DBRecord& record);
-    void ExcludeRecord(NDB& ndb, const DBRecord& record);
-    static double NormalizeHammingDistance(const DBRecord& r1, const DBRecord& r2) ;
+    static void ExcludeRecord(NDB& ndb, const DBRecord& record);
+    static double NormalizeHammingDistance(const DBRecord& r1, const DBRecord& r2);
     Algorithm _algorithm;
     ChecksumType _checksumType;
     int _length;

@@ -28,8 +28,7 @@ SuperfluousStringTest::SuperfluousStringTest(ChecksumType checksumType, int leng
 
 SuperfluousStringTest::Results SuperfluousStringTest::Run()
 {
-    RandomValuesGenerator rng;
-    auto db = *rng.GenerateRandomDB(1, _length).begin();
+    auto db = *RandomValuesGenerator::GenerateRandomDB(1, _length).begin();
     Checksum::Pad(db, _checksumType);
     NDBStream ndb;
     std::unique_ptr<NDB_Generator> generator;
@@ -53,7 +52,7 @@ SuperfluousStringTest::Results SuperfluousStringTest::Run()
         else if (Checksum::Check(record.value(), _checksumType))
         {
             auto dist = NormalizeHammingDistance(record.value(), db);
-            std::cout << "Found superfluous matched record: " << record->ToString() << " : " << dist << std::endl;
+            std::cout << "Found superfluous matched record: " << record->ToString() << " "<< results.matched <<  " : " << dist << std::endl;
             results.matched++;
             results.avgHammingDistance += dist;
         }

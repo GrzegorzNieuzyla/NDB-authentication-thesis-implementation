@@ -39,4 +39,5 @@ private:
     bool _distributionTesting = false;
 
     bool _batchMode = false;
+    int  _repeat = 1;
 };

@@ -8,9 +8,9 @@
 SuperfluousStringBatchTest::SuperfluousStringBatchTest(std::vector<int> lengths,
                                                        std::vector<double> recordCountRatios,
                                                        double probabilityRatio, int specifiedBits,
-                                                       std::vector<Checksum::ChecksumType> checksumTypes)
+                                                       std::vector<Checksum::ChecksumType> checksumTypes, int repeat)
    : _lengths(std::move(lengths)), _recordCountRatios(std::move(recordCountRatios)), _probabilityRatio(probabilityRatio), _specifiedBits(
-        specifiedBits), _checksumTypes(std::move(checksumTypes))
+        specifiedBits), _checksumTypes(std::move(checksumTypes)), _repeat(repeat)
 {
     _algorithm = Algorithm::QHidden;
 }
@@ -18,8 +18,8 @@ SuperfluousStringBatchTest::SuperfluousStringBatchTest(std::vector<int> lengths,
 SuperfluousStringBatchTest::SuperfluousStringBatchTest(std::vector<int> lengths,
                                                        std::vector<double> recordCountRatios,
                                                        std::vector<double> probabilityRatios, int specifiedBits,
-                                                       std::vector<Checksum::ChecksumType> checksumTypes)
-: _lengths(std::move(lengths)), _recordCountRatios(std::move(recordCountRatios)), _probabilityRatios(std::move(probabilityRatios)), _specifiedBits(specifiedBits), _checksumTypes(std::move(checksumTypes))
+                                                       std::vector<Checksum::ChecksumType> checksumTypes, int repeat)
+: _lengths(std::move(lengths)), _recordCountRatios(std::move(recordCountRatios)), _probabilityRatios(std::move(probabilityRatios)), _specifiedBits(specifiedBits), _checksumTypes(std::move(checksumTypes)), _repeat(repeat)
 {
     _algorithm = Algorithm::KHidden;
 }
@@ -34,7 +34,8 @@ void SuperfluousStringBatchTest::Run(const std::string& filename)
         {
             for (auto ratio : _recordCountRatios)
             {
-                RunTestCase(file, length, ratio, checksum);
+                for (int i = 0; i < _repeat; ++i)
+                    RunTestCase(file, length, ratio, checksum);
             }
         }
     }

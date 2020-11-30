@@ -75,7 +75,6 @@ public:
     {
         using boost::uuids::detail::md5;
 
-        assert(record.Size() % 8 == 0);
         switch (checksumType)
         {
             case ChecksumType::None:
@@ -85,6 +84,7 @@ public:
                 return;
             case ChecksumType::CRC8:
             {
+                assert(record.Size() % 8 == 0);
                 crc8 crc;
                 auto bytes = record.ToBytes();
                 crc.process_bytes(bytes.data(), bytes.size());
@@ -95,6 +95,7 @@ public:
             }
             case ChecksumType::CRC16:
             {
+                assert(record.Size() % 8 == 0);
                 boost::crc_16_type crc;
                 auto bytes = record.ToBytes();
                 crc.process_bytes(bytes.data(), bytes.size());
@@ -105,6 +106,7 @@ public:
             }
             case ChecksumType::CRC32:
             {
+                assert(record.Size() % 8 == 0);
                 boost::crc_32_type crc;
                 auto bytes = record.ToBytes();
                 crc.process_bytes(bytes.data(), bytes.size());
@@ -115,6 +117,7 @@ public:
             }
             case ChecksumType::MD5:
             {
+                assert(record.Size() % 8 == 0);
                 md5 hash;
                 md5::digest_type digest;
                 auto bytes = record.ToBytes();
@@ -155,6 +158,8 @@ public:
                 return 32;
             case ChecksumType::MD5:
                 return 128;
+            default:
+                throw std::invalid_argument("Invalid type");
         }
     }
 };

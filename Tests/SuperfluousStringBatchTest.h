@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "../Utils/Checksum.h"
+#include "../Utils/RandomValuesGenerator.h"
 
 class SuperfluousStringBatchTest
 {
@@ -11,11 +12,11 @@ public:
     SuperfluousStringBatchTest(std::vector<int> lengths,
                                std::vector<double> recordCountRatios,
                                double probabilityRatio, int specifiedBits,
-                               std::vector<Checksum::ChecksumType> checksumTypes);
+                               std::vector<Checksum::ChecksumType> checksumTypes, int repeat);
 
     SuperfluousStringBatchTest(std::vector<int> lengths, std::vector<double> recordCountRatios,
                                std::vector<double> probabilityRatios, int specifiedBits,
-                               std::vector<Checksum::ChecksumType> checksumTypes);
+                               std::vector<Checksum::ChecksumType> checksumTypes, int repeat);
 
     void Run(const std::string& filename);
 private:
@@ -31,9 +32,7 @@ private:
     std::vector<Checksum::ChecksumType> _checksumTypes;
     double _probabilityRatio{};
     int _specifiedBits;
-
-
-private:
+    int _repeat;
     Algorithm _algorithm;
 };
 

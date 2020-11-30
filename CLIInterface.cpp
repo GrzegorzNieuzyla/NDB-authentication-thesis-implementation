@@ -85,6 +85,7 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("format,f", po::value<std::string>(&_generationMethod), "Output format (dimacs | ndb)")
                 ("superfluous,s", "Don't generate file, check for superfluous strings")
                 ("batch", "Enable batch mode")
+                ("repeat", po::value<int>(&_repeat), "Specify times to repeat test")
                 ("checksum-bits,cb", po::value<std::vector<int>>(&_checksumBits)->multitoken(), "Checksum bits count")
                 ("db-record", po::value<std::string>(&_dbRecord), "Specify DB record")
                 ("distribution", "Run distribution test")
@@ -193,11 +194,11 @@ void CLIInterface::RunSuperfluousStringsTest()
         std::transform(_checksumBits.begin(), _checksumBits.end(), std::back_inserter(checksums), Checksum::GetChecksumType);
         if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
         {
-            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatio[0], _specifiedBits[0], checksums).Run(_outputFile);
+            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatio[0], _specifiedBits[0], checksums, _repeat).Run(_outputFile);
         }
         else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
         {
-            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatios, _specifiedBits[0], checksums).Run(_outputFile);
+            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatios, _specifiedBits[0], checksums, _repeat).Run(_outputFile);
         }
         return;
     }
@@ -222,7 +223,7 @@ void CLIInterface::RunGenerator()
     }
     else
     {
-        SetupGenerator(RandomValuesGenerator().GenerateRandomDB(_recordCount[0], _recordLength[0]));
+        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(_recordCount[0], _recordLength[0]));
     }
     _generator->PrintParameters();
     std::unique_ptr<Stream> stream;
@@ -277,7 +278,7 @@ void CLIInterface::RunDistributionTest()
     }
     else
     {
-        SetupGenerator(RandomValuesGenerator().GenerateRandomDB(1, _recordLength[0]));
+        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(1, _recordLength[0]));
     }
     NDBStream ndb;
     _generator->Generate(ndb);

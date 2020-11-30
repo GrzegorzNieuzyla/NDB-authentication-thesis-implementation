@@ -12,11 +12,11 @@ size_t NDB_0HiddenGenerator::Generate(Stream &output)
 
     while (count != n)
     {
-        auto indices = _random.GetRandomIndices(_length, _definedPositionCount);
+        auto indices = RandomValuesGenerator::GetRandomIndices(_length, _definedPositionCount);
         NDBRecord record{ std::vector<NDBChar>(_length, NDBChar::Wildcard) };
         for (auto index : indices)
         {
-            record.Characters()[index] = (_random.GetRandomInt(0, 1) == 1 ? NDBChar::Bit1 : NDBChar::Bit0);
+            record.Characters()[index] = (RandomValuesGenerator::GetRandomInt(0, 1) == 1 ? NDBChar::Bit1 : NDBChar::Bit0);
         }
         output << record.ToString() << "\n";
         ++count;

@@ -34,6 +34,5 @@ protected:
     [[nodiscard]] std::size_t GetDBRecordSize() const;
     std::vector<DBRecord> _db;
     int _length = 0;
-    mutable RandomValuesGenerator _random;
 };
 

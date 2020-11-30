@@ -11,9 +11,9 @@ std::size_t NDB_RandomizedGenerator::Generate(Stream& output)
 {
     std::size_t count = 0;
     int init = std::min(
-            _random.GetRandomInt(0, ceil(log2(_length))*1.5),
+            RandomValuesGenerator::GetRandomInt(0, ceil(log2(_length))*1.5),
             _length/2);
-    auto permutation = _random.GenerateRandomPermutation(_length);
+    auto permutation = RandomValuesGenerator::GenerateRandomPermutation(_length);
     ApplyPermutationToDb(permutation);
 
     auto W = NDBUtils::GetAllPatterns(init);
@@ -24,13 +24,13 @@ std::size_t NDB_RandomizedGenerator::Generate(Stream& output)
 
         for (const auto& Vp : GetPatternsNotInDBWithPrefixes(W))
         {
-            auto rand = _random.GetRandomInt(
+            auto rand = RandomValuesGenerator::GetRandomInt(
                     1,
                     std::max(4, static_cast<int>(ceil(log2(_length)) * 2))
                     );
             for (auto j = 1; j <= rand; ++j)
             {
-                auto bits = _random.GetRandomIndices(_length - Vp.Size(), _random.GetRandomInt(0, std::min(
+                auto bits = RandomValuesGenerator::GetRandomIndices(_length - Vp.Size(), RandomValuesGenerator::GetRandomInt(0, std::min(
                         static_cast<int>(_length - Vp.Size()),
                         static_cast<int>(ceil(log2(_length))))));
                 std::vector<std::vector<std::pair<int, bool>>> bitIndices;
@@ -51,7 +51,7 @@ std::size_t NDB_RandomizedGenerator::Generate(Stream& output)
 
 NDBRecord NDB_RandomizedGenerator::PatternGenerate(const DBRecord &record, const std::vector<std::pair<int, bool>>& augs) const
 {
-    auto permutation = _random.GenerateRandomPermutation(GetDBRecordSize());
+    auto permutation = RandomValuesGenerator::GenerateRandomPermutation(GetDBRecordSize());
     auto pattern = ToNDBRecord(record, GetDBRecordSize()).Characters();
     for (const auto& aug : augs)
     {
@@ -73,8 +73,8 @@ NDBRecord NDB_RandomizedGenerator::PatternGenerate(const DBRecord &record, const
             pattern[permInd] = bit;
         }
     }
-    int t = _random.GetRandomInt(0, SIV.size());
-    auto choices = _random.GetRandomChoice(SIV, t);
+    int t = RandomValuesGenerator::GetRandomInt(0, SIV.size());
+    auto choices = RandomValuesGenerator::GetRandomChoice(SIV, t);
     for (const auto& pair : choices)
     {
         pattern[pair.first] = pair.second;

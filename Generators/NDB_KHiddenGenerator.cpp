@@ -24,15 +24,15 @@ size_t NDB_KHiddenGenerator::Generate(Stream &output)
     const auto& dbRecord = _db[0];
     while (count < n)
     {
-        int specifiedBitsCount = GetSpecifiedBitsCount(_random.GetRandomDouble(0, 1));
-        auto indices = _random.GetRandomIndices(_length, _definedPositionCount);
+        int specifiedBitsCount = GetSpecifiedBitsCount(RandomValuesGenerator::GetRandomDouble(0, 1));
+        auto indices = RandomValuesGenerator::GetRandomIndices(_length, _definedPositionCount);
         NDBRecord record{ std::vector<NDBChar>(_length, NDBChar::Wildcard) };
         for (auto index : indices)
         {
             record.Characters()[index] = dbRecord.Characters()[index] ? NDBChar::Bit1 : NDBChar::Bit0;
         }
 
-        auto bits = _random.GetRandomChoice(indices, specifiedBitsCount);
+        auto bits = RandomValuesGenerator::GetRandomChoice(indices, specifiedBitsCount);
         for (auto bit : bits)
         {
             record.Characters()[bit] = dbRecord.Characters()[bit] ? NDBChar::Bit0 : NDBChar::Bit1;

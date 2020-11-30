@@ -31,7 +31,7 @@ private:
     enum class Algorithm
     {
         QHidden,
-        KHidden
+        KHidden,
     };
     static void ExcludeRecord(NDB& ndb, const DBRecord& record);
     static double NormalizeHammingDistance(const DBRecord& r1, const DBRecord& r2);

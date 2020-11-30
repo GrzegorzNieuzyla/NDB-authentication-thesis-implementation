@@ -19,7 +19,7 @@ std::size_t NDB_RandomizedOldGenerator::Generate(Stream& output)
 
         for (const auto& Vp : GetPatternsNotInDBWithPrefixes(W))
         {
-            auto rand = _random.GetRandomInt(1, _length);
+            auto rand = RandomValuesGenerator::GetRandomInt(1, _length);
             for (auto j = 1; j <= rand; ++j)
             {
                 output << PatternGenerate(Vp).ToString() << "\n";
@@ -33,7 +33,7 @@ std::size_t NDB_RandomizedOldGenerator::Generate(Stream& output)
 
 NDBRecord NDB_RandomizedOldGenerator::PatternGenerate(const DBRecord &record) const
 {
-    auto permutation = _random.GenerateRandomPermutation(GetDBRecordSize());
+    auto permutation = RandomValuesGenerator::GenerateRandomPermutation(GetDBRecordSize());
     auto pattern = ToNDBRecord(record, GetDBRecordSize()).Characters();
     std::vector<std::pair<int, NDBChar>> SIV;
     for (int i = 0; i < pattern.size(); ++i)
@@ -51,8 +51,8 @@ NDBRecord NDB_RandomizedOldGenerator::PatternGenerate(const DBRecord &record) co
             pattern[permInd] = bit;
         }
     }
-    int t = _random.GetRandomInt(0, SIV.size());
-    auto choices = _random.GetRandomChoice(SIV, t);
+    int t = RandomValuesGenerator::GetRandomInt(0, SIV.size());
+    auto choices = RandomValuesGenerator::GetRandomChoice(SIV, t);
     for (const auto& pair : choices)
     {
         pattern[pair.first] = pair.second;

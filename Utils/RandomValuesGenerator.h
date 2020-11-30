@@ -3,15 +3,16 @@
 
 #include "Permutation.h"
 #include "RandomSeedProvider.h"
+#include "../DB.h"
 #include <vector>
 #include <chrono>
-
+#include <unordered_set>
+#include <set>
 
 class RandomValuesGenerator
 {
 public:
-    RandomValuesGenerator() : _rng(RandomSeedProvider::Get()) {}
-    Permutation GenerateRandomPermutation(int size)
+    static Permutation GenerateRandomPermutation(int size)
     {
         std::vector<int> permutations;
         permutations.resize(size);
@@ -19,24 +20,24 @@ public:
         {
             permutations[i] = i;
         }
-        std::shuffle(permutations.begin(), permutations.end(), _rng);
+        std::shuffle(permutations.begin(), permutations.end(), _instance._rng);
 
         return Permutation(permutations);
     }
-    int GetRandomInt(int lower, int upper)
+    static int GetRandomInt(int lower, int upper)
     {
         std::uniform_int_distribution<int> dist(lower, upper);
-        return dist(_rng);
+        return dist(_instance._rng);
     }
 
-    template<class T> std::vector<T> GetRandomChoice(const std::vector<T>& container, int count)
+    template<class T> static  std::vector<T> GetRandomChoice(const std::vector<T>& container, int count)
     {
         assert(count <= container.size());
         if (count == container.size()) return container;
         if (count >= container.size() / 4)
         {
             auto cont = container;
-            std::shuffle(cont.begin(), cont.end(), _rng);
+            std::shuffle(cont.begin(), cont.end(), _instance._rng);
             return {cont.begin(), cont.begin() + count};
         }
         std::vector<T> result;
@@ -53,7 +54,7 @@ public:
         return result;
     }
 
-    std::vector<int> GetRandomIndices(int length, int count)
+    static std::vector<int> GetRandomIndices(int length, int count)
     {
         std::vector<int> indices;
         indices.resize(length);
@@ -64,13 +65,13 @@ public:
         return GetRandomChoice(indices, count);
     }
 
-    double GetRandomDouble(double lower, double upper)
+    static double GetRandomDouble(double lower, double upper)
     {
         std::uniform_real_distribution<double> dist(lower, upper);
-        return dist(_rng);
+        return dist(_instance._rng);
     }
 
-    std::set<DBRecord> GenerateRandomDB(int count, int length)
+    static std::set<DBRecord> GenerateRandomDB(int count, int length)
     {
         std::set<DBRecord> db;
         for (int i = 0; i < count; i++)
@@ -85,8 +86,16 @@ public:
         return db;
     }
 
+    static size_t GetRandomULong()
+    {
+        std::uniform_int_distribution<std::size_t> dist;
+        return dist(_instance._rng);
+    }
+
 private:
-    std::mt19937 _rng;
+    RandomValuesGenerator() = default;
+    static RandomValuesGenerator _instance;
+    std::mt19937 _rng {RandomSeedProvider::Get()};
 };
 
 

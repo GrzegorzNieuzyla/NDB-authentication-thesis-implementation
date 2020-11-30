@@ -15,7 +15,7 @@ size_t NDB_QHiddenGenerator::Generate(Stream &output)
     const auto& dbRecord = _db[0];
     while (count < n)
     {
-        auto indices = _random.GetRandomIndices(_length, _definedPositionCount);
+        auto indices = RandomValuesGenerator::GetRandomIndices(_length, _definedPositionCount);
         NDBRecord record{ std::vector<NDBChar>(_length, NDBChar::Wildcard) };
         for (auto index : indices)
         {
@@ -27,7 +27,7 @@ size_t NDB_QHiddenGenerator::Generate(Stream &output)
         {
             for (auto index : indices)
             {
-                if (_random.GetRandomDouble(0, 1) < _probabilityRatio)
+                if (RandomValuesGenerator::GetRandomDouble(0, 1) < _probabilityRatio)
                 {
                     changed = true;
                     record.Characters()[index] = dbRecord.Characters()[index] ? NDBChar::Bit0 : NDBChar::Bit1;

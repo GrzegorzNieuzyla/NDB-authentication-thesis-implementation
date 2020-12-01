@@ -15,7 +15,9 @@ private:
     void RunGenerator();
     void RunSuperfluousStringsTest();
     void RunDistributionTest();
+    void RunSolveTests();
     static std::string GetTimeElapsed(std::size_t seconds);
+    [[nodiscard]] std::vector<std::vector<double>> GetPVectors() const;
     std::unique_ptr<NDB_Generator> _generator;
     std::vector<std::string> _arguments;
     boost::program_options::variables_map _variablesMap;
@@ -40,4 +42,6 @@ private:
 
     bool _batchMode = false;
     int  _repeat = 1;
+    bool _solveTesting = false;
+    std::string _solver = "zchaff";
 };

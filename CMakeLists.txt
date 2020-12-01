@@ -34,7 +34,7 @@ add_executable(NDBGenerator
         Utils/FileUtils.h
         Tests/SuperfluousStringBatchTest.cpp Tests/SuperfluousStringBatchTest.h
         Utils/Checksum.h
-        Interfaces/walksat.c Interfaces/Walksat.h Interfaces/WalksatInterface.cpp Interfaces/WalksatInterface.h Utils/RandomValuesGenerator.cpp)
+        Interfaces/walksat.c Interfaces/Walksat.h Interfaces/WalksatInterface.cpp Interfaces/WalksatInterface.h Utils/RandomValuesGenerator.cpp Tests/ZChaffSolveTest.cpp Tests/ZChaffSolveTest.h Tests/WalkSatSolveTest.cpp Tests/WalkSatSolveTest.h Tests/PrefixBatchTest.cpp Tests/PrefixBatchTest.h Tests/GeneratorBatchTest.h Tests/RandomizerBatchTest.cpp Tests/RandomizerBatchTest.h Tests/QHiddenBatchTest.cpp Tests/QHiddenBatchTest.h Tests/KHiddenBatchTest.cpp Tests/KHiddenBatchTest.h Tests/HybridBatchTest.cpp Tests/HybridBatchTest.h)
 
 target_link_libraries(NDBGenerator boost_program_options)
 target_link_libraries(NDBGenerator ${zChaff})

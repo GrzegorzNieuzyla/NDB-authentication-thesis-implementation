@@ -8,7 +8,7 @@ extern "C"
 class WalksatInterface
 {
 public:
-    WalksatResult Solve(const NDB& ndb, std::size_t cutoff=100000, int noise=50);
+    WalksatResult Solve(const NDB& ndb, std::size_t cutoff=1000000000, int noise=50);
 
 private:
     std::string TMP_NDB_FILE = ".walksat_tmp_ndb";

@@ -6,8 +6,14 @@
 class ZChaffInterface
 {
 public:
+    struct Result
+    {
+        std::optional<DBRecord> record;
+        std::size_t decisions;
+        std::size_t seconds;
+    };
     ZChaffInterface();
-    std::optional<DBRecord> Solve(const NDB& ndb);
+    Result Solve(const NDB& ndb);
     virtual ~ZChaffInterface();
 
 private:

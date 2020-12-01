@@ -421,6 +421,7 @@ int calc_hamming_dist(int atom[], int hamming_target[], int numatom);
 
 struct WalksatResult WalksatMain(int argc, char *argv[])
 {
+    Reset();
     int a;
 
 #if BSD || LINUX || OSX
@@ -470,6 +471,61 @@ struct WalksatResult WalksatMain(int argc, char *argv[])
     return result;
 }
 
+void Reset()
+{
+    status_flag = 0;
+    arc4 = FALSE;
+    walk_probability = 0.5;
+    plus_flag = FALSE;
+    numrun = 10;
+    cutoff = 100000;
+    base_cutoff = 100000;
+    target = 0;
+    numtry = 0;
+    numsol = BIG;
+    superlinear = FALSE;
+    makeflag = FALSE;
+    initfile[0] = 0;
+    initoptions = FALSE;
+    nofreebie = FALSE;
+    maxfreebie = FALSE;
+    freebienoise = 0;
+    freebienoise_prob = 0.0;
+    alternate_greedy = -1;
+    alternate_walk = -1;
+    alternate_greedy_state = FALSE;
+    alternate_run_remaining = 0;
+    adaptive = FALSE;
+    memset(tailhist, HISTMAX, sizeof(tailhist[0]));
+    tail = 10;
+    undo_age = 1;
+    printonlysol = FALSE;
+    printsolcnf = FALSE;
+    printfalse = FALSE;
+    printlow = FALSE;
+    printhist = FALSE;
+    printtrace = FALSE;
+    trace_assign = FALSE;
+    outfile[0] =  0 ;
+    totalflip = 0;
+    totalsuccessflip = 0;
+    numsuccesstry = 0;
+    integer_sum_x = 0;
+    sum_x = 0.0;
+    sum_x_squared = 0.0;
+    sum_r = 0;
+    sum_r_squared = 0.0;
+    number_sampled_runs = 0;
+    suc_sum_avgfalse = 0.0;
+    suc_sum_std_dev_avgfalse = 0.0;
+    suc_number_sampled_runs = 0;
+    nonsuc_sum_avgfalse = 0.0;
+    nonsuc_sum_std_dev_avgfalse = 0.0;
+    nonsuc_number_sampled_runs = 0;
+    hamming_target_file[0] =  0 ;
+    hamming_data_file[0] =  0;
+    hamming_flag = FALSE;
+}
 
 void flipatom(int toflip)
 {

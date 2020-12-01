@@ -41,33 +41,33 @@ SuperfluousStringTest::Results SuperfluousStringTest::Run()
         generator = std::unique_ptr<NDB_Generator>(new NDB_KHiddenGenerator(db, db.Size(), _probabilityRatios, _recordCountRatio, _specifiedBits));
     }
     generator->Generate(ndb);
-    auto record = ZChaffInterface().Solve(ndb.Ndb());
+    auto solution = ZChaffInterface().Solve(ndb.Ndb());
     Results results;
-    while (record.has_value())
+    while (solution.record.has_value())
     {
-        if (record.value().Characters() == db.Characters())
+        if (solution.record.value().Characters() == db.Characters())
         {
-            std::cout << "Found encoded record: " << record->ToString() << std::endl;
+            std::cout << "Found encoded record: " << solution.record->ToString() << std::endl;
         }
-        else if (Checksum::Check(record.value(), _checksumType))
+        else if (Checksum::Check(solution.record.value(), _checksumType))
         {
-            auto dist = NormalizeHammingDistance(record.value(), db);
-            std::cout << "Found superfluous matched record: " << record->ToString() << " "<< results.matched <<  " : " << dist << std::endl;
+            auto dist = NormalizeHammingDistance(solution.record.value(), db);
+            std::cout << "Found superfluous matched record: " << solution.record->ToString() << " "<< results.matched <<  " : " << dist << std::endl;
             results.matched++;
             results.avgHammingDistance += dist;
         }
         else
         {
-            auto dist = NormalizeHammingDistance(record.value(), db);
-            std::cout << "Found superfluous unmatched record: " << record->ToString() << " : " << dist <<std::endl;
+            auto dist = NormalizeHammingDistance(solution.record.value(), db);
+            std::cout << "Found superfluous unmatched record: " << solution.record->ToString() << " : " << dist <<std::endl;
             results.unmatched++;
             results.avgHammingDistance += dist;
         }
-        ExcludeRecord(ndb.Ndb(), record.value());
-        record = ZChaffInterface().Solve(ndb.Ndb());
+        ExcludeRecord(ndb.Ndb(), solution.record.value());
+        solution = ZChaffInterface().Solve(ndb.Ndb());
     }
     std::cout << "Found " << results.matched << " false positives (+ " << results.unmatched << " unmatched)" << std::endl;
-    if (results.avgHammingDistance)
+    if (results.avgHammingDistance > 0)
         results.avgHammingDistance /= (results.unmatched + results.matched);
     results.csvData = generator->GetCsvData();
     return results;

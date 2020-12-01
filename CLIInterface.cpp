@@ -16,6 +16,11 @@
 #include "Tests/DistributionTest.h"
 #include "Streams/NDBStream.h"
 #include "Tests/SuperfluousStringBatchTest.h"
+#include "Tests/PrefixBatchTest.h"
+#include "Tests/RandomizerBatchTest.h"
+#include "Tests/QHiddenBatchTest.h"
+#include "Tests/KHiddenBatchTest.h"
+#include "Tests/HybridBatchTest.h"
 
 
 namespace po = boost::program_options;
@@ -90,6 +95,8 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("db-record", po::value<std::string>(&_dbRecord), "Specify DB record")
                 ("distribution", "Run distribution test")
                 ("help,h", "Produce help message")
+                ("solve-tests", "Run solve tests")
+                ("solver", po::value<std::string>(&_solver), "Specify solver (zchaff | walksat)")
                 ("algorithm,a", po::value<std::string>(&_algorithm)->required(), algorithms.c_str());
 
         po::store(po::parse_command_line(argc, argv, _description), _variablesMap);
@@ -133,18 +140,19 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
             _checksumBits = _variablesMap["checksum-bits"].as<std::vector<int>>();
         }
 
-
         if (_specifiedBits[0] <= 0 || _recordLength[0] <= 0 || _probabilityRatio[0] < 0 || _probabilityRatio[0] > 1 || _recordCountRatio[0] <= 0)
         {
             std::cerr << "Incorrect parameter value" << std::endl;
             exit(1);
         }
         _superfluousStringTesting = _variablesMap.count("superfluous");
+        _solveTesting = _variablesMap.count("solve-tests");
         _distributionTesting = _variablesMap.count("distribution");
         _batchMode = _variablesMap.count("batch");
         if (!_dbRecord.empty())
             _recordLength[0] = _dbRecord.size();
         alg::to_lower(_algorithm);
+        alg::to_lower(_solver);
     }
     catch (po::required_option& e)
     {
@@ -167,6 +175,10 @@ void CLIInterface::Run()
     else if (_distributionTesting)
     {
         RunDistributionTest();
+    }
+    else if (_solveTesting)
+    {
+        RunSolveTests();
     }
     else
     {
@@ -347,4 +359,67 @@ void CLIInterface::RunDistributionTest()
     }
     std::cout << std::accumulate(gini.begin(), gini.end(), 0.0) / gini.size();
     std::cout << std::endl;
+}
+
+std::vector<std::vector<double>> CLIInterface::GetPVectors() const
+{
+    std::vector<std::vector<double>> result;
+    result.emplace_back();
+    for (auto r : _probabilityRatios)
+    {
+        if (std::accumulate(result.back().begin(), result.back().end(), 0.0) + r >= 1.01)
+            result.emplace_back();
+        result.back().push_back(r);
+    }
+
+    return result;
+}
+
+void CLIInterface::RunSolveTests()
+{
+
+    GeneratorBatchTest::Solver solver;
+    if (_solver == "zchaff")
+    {
+        solver = GeneratorBatchTest::Solver::ZChaff;
+    }
+    else if (_solver == "walksat")
+    {
+        solver = GeneratorBatchTest::Solver::WalkSat;
+    }
+    else
+    {
+        std::cerr << "Invalid solver: " << _solver << std::endl;
+        exit(1);
+    }
+    if (_outputFile.empty())
+    {
+        std::cerr << "Output file not specified " << std::endl;
+        exit(1);
+    }
+    if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
+    {
+        PrefixBatchTest(solver, _recordCount, _recordLength, _repeat).Run(_outputFile);
+    }
+    else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
+    {
+        RandomizerBatchTest(solver, _recordCount, _recordLength, _repeat).Run(_outputFile);
+    }
+    else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+    {
+        QHiddenBatchTest(solver, _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits, _repeat).Run(_outputFile);
+    }
+    else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+    {
+        KHiddenBatchTest(solver, _recordLength, GetPVectors(), _recordCountRatio, _specifiedBits, _repeat).Run(_outputFile);
+    }
+    else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
+    {
+        HybridBatchTest(solver, _recordLength, _probabilityRatio, _recordCountRatio, _repeat).Run(_outputFile);
+    }
+    else
+    {
+        std::cerr << "No such algorithm: " << _algorithm << std::endl;
+        exit(1);
+    }
 }

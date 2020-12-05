@@ -17,11 +17,13 @@ WalksatResult WalksatInterface::Solve(const NDB &ndb, std::size_t cutoff, int no
     auto cutoffStrVal = std::to_string(cutoff);
     std::string noiseStr = "-noise";
     auto noiseVal = std::to_string(noise);
-    char* argv[6] = {empty.data(), cutoffStr.data(), cutoffStrVal.data(), noiseStr.data(), noiseVal.data(), TMP_NDB_FILE.data()};
+    std::string solStr = "-numsol";
+    std::string solVal = "1";
+    char* argv[8] = {empty.data(), cutoffStr.data(), cutoffStrVal.data(), noiseStr.data(), noiseVal.data(), solStr.data(), solVal.data(), TMP_NDB_FILE.data()};
     std::clock_t c_start = std::clock();
-    auto result = WalksatMain(6, argv);
+    auto result = WalksatMain(8, argv);
     std::clock_t c_end = std::clock();
-    result.seconds = (c_end-c_start) / CLOCKS_PER_SEC;
+    result.solveTime = (c_end - c_start) / (CLOCKS_PER_SEC / 1000);
     std::filesystem::remove(TMP_NDB_FILE);
     return result;
 }

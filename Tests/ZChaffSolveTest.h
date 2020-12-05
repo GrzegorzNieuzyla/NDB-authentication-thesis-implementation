@@ -8,7 +8,8 @@ public:
     struct Results
     {
         std::size_t decisions;
-        std::size_t seconds;
+        std::size_t genTime;
+        std::size_t solveTime;
         bool solved;
     };
 

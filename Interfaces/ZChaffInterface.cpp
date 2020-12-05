@@ -34,7 +34,7 @@ ZChaffInterface::Result ZChaffInterface::Solve(const NDB &ndb)
     std::clock_t c_start = std::clock();
     auto satResult = SAT_Solve(_manager);
     std::clock_t c_end = std::clock();
-    result.seconds = (c_end-c_start) / CLOCKS_PER_SEC;
+    result.seconds = (c_end-c_start) / (CLOCKS_PER_SEC / 1000);
     if (satResult == SATISFIABLE)
     {
         result.record = DBRecord();

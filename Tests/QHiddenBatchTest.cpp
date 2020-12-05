@@ -6,7 +6,7 @@
 void QHiddenBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
-    file << FileUtils::CsvFileData::GetCsvDataHeader() << ";solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
+    file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
     for (auto length : _lengths)
     {
         for (auto definedBits : _definedBits)
@@ -42,12 +42,12 @@ void QHiddenBatchTest::RunTest(std::ofstream &file, int length, double ratio, do
     if (_solver == Solver::ZChaff)
     {
         auto result = ZChaffSolveTest(generator).Solve();
-        file << ";" << result.solved << ";" << result.seconds << ";" << result.decisions;
+        file << ";" << result.genTime << ";" << result.solved << ";" << result.solveTime << ";" << result.decisions;
     }
     else if (_solver == Solver::WalkSat)
     {
         auto result = WalkSatSolveTest(generator).Solve();
-        file << ";" << result.solved << ";" << result.seconds << ";" << result.flips;
+        file << ";" << result.genTime << ";" << result.solved << ";" << result.solveTime << ";" << result.flips;
     }
     file << std::endl;
 }

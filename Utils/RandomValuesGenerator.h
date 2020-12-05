@@ -74,7 +74,7 @@ public:
     static std::set<DBRecord> GenerateRandomDB(int count, int length)
     {
         std::set<DBRecord> db;
-        for (int i = 0; i < count; i++)
+        while (db.size() != count)
         {
             DBRecord record;
             for (int j = 0; j < length; j++)

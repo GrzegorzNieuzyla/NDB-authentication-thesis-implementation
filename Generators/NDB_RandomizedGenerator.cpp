@@ -20,7 +20,6 @@ std::size_t NDB_RandomizedGenerator::Generate(Stream& output)
 
     for (int i = init; i < _length && !W.empty(); ++i)
     {
-        std::cout << i << std::endl;
 
         for (const auto& Vp : GetPatternsNotInDBWithPrefixes(W))
         {

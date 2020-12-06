@@ -50,7 +50,7 @@ void GenerationTimeTest::TestQHidden(std::ofstream& file)
                 {
                     for (int i = 0; i < settings.repeat; ++i)
                     {
-                        auto db = RandomValuesGenerator::GenerateRandomDB(1, settings.recordLength[0]);
+                        auto db = RandomValuesGenerator::GenerateRandomDB(1, recordCount);
                         NDB_QHiddenGenerator generator(*db.begin(), length, ratio, recordCount, definedBits);
                         DummyStream stream;
                         std::clock_t c_start = std::clock();
@@ -80,7 +80,7 @@ void GenerationTimeTest::TestKHidden(std::ofstream &file)
                 {
                     for (int i = 0; i < settings.repeat; ++i)
                     {
-                        auto db = RandomValuesGenerator::GenerateRandomDB(1, settings.recordLength[0]);
+                        auto db = RandomValuesGenerator::GenerateRandomDB(1, recordCount);
                         NDB_KHiddenGenerator generator(*db.begin(), length, ratio, recordCount, definedBits);
                         DummyStream stream;
                         std::clock_t c_start = std::clock();
@@ -107,7 +107,7 @@ void GenerationTimeTest::TestHybrid(std::ofstream &file)
             {
                 for (int i = 0; i < settings.repeat; ++i)
                 {
-                    auto db = RandomValuesGenerator::GenerateRandomDB(1, settings.recordLength[0]);
+                    auto db = RandomValuesGenerator::GenerateRandomDB(1, recordCount);
                     NDB_HybridGenerator generator(*db.begin(), length, ratio, recordCount);
                     DummyStream stream;
                     std::clock_t c_start = std::clock();

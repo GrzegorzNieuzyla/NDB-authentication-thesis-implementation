@@ -21,6 +21,7 @@
 #include "Tests/QHiddenBatchTest.h"
 #include "Tests/KHiddenBatchTest.h"
 #include "Tests/HybridBatchTest.h"
+#include "Tests/GenerationTimeTest.h"
 
 
 namespace po = boost::program_options;
@@ -33,37 +34,37 @@ CLIInterface::CLIInterface(int argc, char* argv[])
 
 void CLIInterface::SetupGenerator(const DB& db)
 {
-    if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
+    if (_settings.algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_PrefixGenerator(db, GetSettings().recordLength[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_RandomizedOldGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_RandomizedOldGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedOldGenerator(db, GetSettings().recordLength[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedGenerator(db, GetSettings().recordLength[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_0HiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_0HiddenGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_0HiddenGenerator(GetSettings().recordLength[0], GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_QHiddenGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatio[0], GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_KHiddenGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatios, GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
     {
         _generator = std::unique_ptr<NDB_Generator>(new NDB_HybridGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatio[0], GetSettings().recordCountRatio[0]));
     }
     else
     {
-        std::cerr << "No such algorithm: " << _algorithm << std::endl;
+        std::cerr << "No such algorithm: " << _settings.algorithm << std::endl;
         exit(1);
     }
 }
@@ -100,7 +101,7 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("cutoff", po::value<std::size_t>(&_settings.walksatCutoffLimit), "Specify WalkSAT cutoff")
                 ("time-limit", po::value<std::size_t>(&_settings.zchaffTimeLimit), "Specify zChaff time limit")
                 ("solver", po::value<std::string>(&_solver), "Specify solver (zchaff | walksat)")
-                ("algorithm,a", po::value<std::string>(&_algorithm)->required(), algorithms.c_str());
+                ("algorithm,a", po::value<std::string>(&_settings.algorithm)->required(), algorithms.c_str());
 
         po::store(po::parse_command_line(argc, argv, _description), _variablesMap);
 
@@ -155,7 +156,7 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
         _genTimeTest = _variablesMap.count("gen-time-tests");
         if (!_dbRecord.empty())
             _settings.recordLength[0] = _dbRecord.size();
-        alg::to_lower(_algorithm);
+        alg::to_lower(_settings.algorithm);
         alg::to_lower(_solver);
     }
     catch (po::required_option& e)
@@ -212,23 +213,23 @@ void CLIInterface::RunSuperfluousStringsTest()
         }
         std::vector<Checksum::ChecksumType> checksums;
         std::transform(_settings.checksumBits.begin(), _settings.checksumBits.end(), std::back_inserter(checksums), Checksum::GetChecksumType);
-        if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+        if (_settings.algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
         {
             SuperfluousStringBatchTest(_settings.recordLength, _settings.recordCountRatio, _settings.probabilityRatio[0], _settings.specifiedBits[0], checksums, _settings.repeat).Run(_outputFile);
         }
-        else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+        else if (_settings.algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
         {
             SuperfluousStringBatchTest(_settings.recordLength, _settings.recordCountRatio, _settings.probabilityRatios, _settings.specifiedBits[0], checksums, _settings.repeat).Run(_outputFile);
         }
         return;
     }
 
-    if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+    if (_settings.algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
         SuperfluousStringTest test(Checksum::GetChecksumType(_settings.checksumBits[0]), _settings.recordLength[0], _settings.probabilityRatio[0], _settings.recordCountRatio[0], _settings.specifiedBits[0]);
         test.Run();
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
         SuperfluousStringTest test(Checksum::GetChecksumType(_settings.checksumBits[0]), _settings.recordLength[0], _settings.probabilityRatios[0], _settings.recordCountRatio[0], _settings.specifiedBits[0]);
         test.Run();
@@ -250,9 +251,9 @@ void CLIInterface::RunGenerator()
     alg::to_lower(_generationMethod);
     if (_outputFile.empty())
     {
-        _outputFile = _algorithm + "_" +
-                      (_algorithm == NDB_PrefixGenerator::GetName() || _algorithm == NDB_RandomizedOldGenerator::GetName() ||
-                       _algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_settings.recordCount[0]) + "_" : "") +
+        _outputFile = _settings.algorithm + "_" +
+                      (_settings.algorithm == NDB_PrefixGenerator::GetName() || _settings.algorithm == NDB_RandomizedOldGenerator::GetName() ||
+                       _settings.algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_settings.recordCount[0]) + "_" : "") +
                       std::to_string(_settings.recordLength[0]);
     }
 
@@ -405,29 +406,29 @@ void CLIInterface::RunSolveTests()
         std::cerr << "Output file not specified " << std::endl;
         exit(1);
     }
-    if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
+    if (_settings.algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
         PrefixBatchTest(solver).Run(_outputFile);
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
     {
         RandomizerBatchTest(solver).Run(_outputFile);
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
         QHiddenBatchTest(solver).Run(_outputFile);
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
         KHiddenBatchTest(solver).Run(_outputFile);
     }
-    else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
+    else if (_settings.algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
     {
         HybridBatchTest(solver).Run(_outputFile);
     }
     else
     {
-        std::cerr << "No such algorithm: " << _algorithm << std::endl;
+        std::cerr << "No such algorithm: " << _settings.algorithm << std::endl;
         exit(1);
     }
 }
@@ -439,7 +440,12 @@ const CLIInterface::Settings &CLIInterface::GetSettings()
 
 void CLIInterface::RunGenerationTimeTests()
 {
-
+    if (_outputFile.empty())
+    {
+        std::cerr << "Output file not provided\n";
+        exit(1);
+    }
+    GenerationTimeTest().RunTests(_outputFile);
 }
 
 CLIInterface::Settings CLIInterface::_settings;

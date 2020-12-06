@@ -21,6 +21,7 @@ public:
         std::vector<double> probabilityRatios = {0.25, 0.5, 0.25};
         std::vector<int> checksumBits = {0};
         int repeat = 1;
+        std::string algorithm;
     };
     static const Settings& GetSettings();
     [[nodiscard]] static std::vector<std::vector<double>> GetPVectors();
@@ -38,9 +39,6 @@ private:
     std::vector<std::string> _arguments;
     boost::program_options::variables_map _variablesMap;
     boost::program_options::options_description _description {"Allowed commands"};
-
-    std::string _algorithm;
-
 
     std::string _outputFile;
     std::string _generationMethod = "dimacs";

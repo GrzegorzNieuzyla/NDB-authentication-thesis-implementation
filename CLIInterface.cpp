@@ -35,31 +35,31 @@ void CLIInterface::SetupGenerator(const DB& db)
 {
     if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_PrefixGenerator(db, _recordLength[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_PrefixGenerator(db, GetSettings().recordLength[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_RandomizedOldGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedOldGenerator(db, _recordLength[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedOldGenerator(db, GetSettings().recordLength[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedGenerator(db, _recordLength[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_RandomizedGenerator(db, GetSettings().recordLength[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_0HiddenGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_0HiddenGenerator(_recordLength[0], _recordCountRatio[0], _specifiedBits[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_0HiddenGenerator(GetSettings().recordLength[0], GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_QHiddenGenerator(*db.begin(), _recordLength[0], _probabilityRatio[0], _recordCountRatio[0], _specifiedBits[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_QHiddenGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatio[0], GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_KHiddenGenerator(*db.begin(), _recordLength[0], _probabilityRatios, _recordCountRatio[0], _specifiedBits[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_KHiddenGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatios, GetSettings().recordCountRatio[0], GetSettings().specifiedBits[0]));
     }
     else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
     {
-        _generator = std::unique_ptr<NDB_Generator>(new NDB_HybridGenerator(*db.begin(), _recordLength[0], _probabilityRatio[0], _recordCountRatio[0]));
+        _generator = std::unique_ptr<NDB_Generator>(new NDB_HybridGenerator(*db.begin(), GetSettings().recordLength[0], GetSettings().probabilityRatio[0], GetSettings().recordCountRatio[0]));
     }
     else
     {
@@ -80,22 +80,23 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
         };
         auto algorithms = "Set algorithm (" + alg::join(availableGenerators, " | ") + ")";
         _description.add_options()
-                ("record-count-ratio,r", po::value<std::vector<double>>(&_recordCountRatio)->multitoken(), "Record count parameter")
-                ("probability-ratio,q", po::value<std::vector<double>>(&_probabilityRatio)->multitoken(), "Probability parameter")
-                ("probability-ratios,p", po::value<std::vector<double>>(&_probabilityRatios)->multitoken(), "Probability parameters")
-                ("record-length,l", po::value<std::vector<int>>(&_recordLength)->multitoken(), "Record length")
-                ("record-count,c", po::value<std::vector<int>>(&_recordCount)->multitoken(), "Record count")
-                ("specified-bits,k", po::value<std::vector<int>>(&_specifiedBits)->multitoken(), "Specified bits count")
+                ("record-count-ratio,r", po::value<std::vector<double>>(&_settings.recordCountRatio)->multitoken(), "Record count parameter")
+                ("probability-ratio,q", po::value<std::vector<double>>(&_settings.probabilityRatio)->multitoken(), "Probability parameter")
+                ("probability-ratios,p", po::value<std::vector<double>>(&_settings.probabilityRatios)->multitoken(), "Probability parameters")
+                ("record-length,l", po::value<std::vector<int>>(&_settings.recordLength)->multitoken(), "Record length")
+                ("record-count,c", po::value<std::vector<int>>(&_settings.recordCount)->multitoken(), "Record count")
+                ("specified-bits,k", po::value<std::vector<int>>(&_settings.specifiedBits)->multitoken(), "Specified bits count")
                 ("output-file,o", po::value<std::string>(&_outputFile), "Output file")
                 ("format,f", po::value<std::string>(&_generationMethod), "Output format (dimacs | ndb)")
                 ("superfluous,s", "Don't generate file, check for superfluous strings")
                 ("batch", "Enable batch mode")
-                ("repeat", po::value<int>(&_repeat), "Specify times to repeat test")
-                ("checksum-bits", po::value<std::vector<int>>(&_checksumBits)->multitoken(), "Checksum bits count")
+                ("repeat", po::value<int>(&_settings.repeat), "Specify times to repeat test")
+                ("checksum-bits", po::value<std::vector<int>>(&_settings.checksumBits)->multitoken(), "Checksum bits count")
                 ("db-record", po::value<std::string>(&_dbRecord), "Specify DB record")
                 ("distribution", "Run distribution test")
                 ("help,h", "Produce help message")
                 ("solve-tests", "Run solve tests")
+                ("gen-time-tests", "Run generation time tests")
                 ("cutoff", po::value<std::size_t>(&_settings.walksatCutoffLimit), "Specify WalkSAT cutoff")
                 ("time-limit", po::value<std::size_t>(&_settings.zchaffTimeLimit), "Specify zChaff time limit")
                 ("solver", po::value<std::string>(&_solver), "Specify solver (zchaff | walksat)")
@@ -112,37 +113,37 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
 
         if (_variablesMap.count("probability-ratios"))
         {
-            _probabilityRatios = _variablesMap["probability-ratios"].as<std::vector<double>>();
+            _settings.probabilityRatios = _variablesMap["probability-ratios"].as<std::vector<double>>();
         }
 
         if (_variablesMap.count("probability-ratio"))
         {
-            _probabilityRatio = _variablesMap["probability-ratio"].as<std::vector<double>>();
+            _settings.probabilityRatio = _variablesMap["probability-ratio"].as<std::vector<double>>();
         }
         if (_variablesMap.count("record-length"))
         {
-            _recordLength = _variablesMap["record-length"].as<std::vector<int>>();
+            _settings.recordLength = _variablesMap["record-length"].as<std::vector<int>>();
         }
 
         if (_variablesMap.count("specified-bits"))
         {
-            _specifiedBits = _variablesMap["specified-bits"].as<std::vector<int>>();
+            _settings.specifiedBits = _variablesMap["specified-bits"].as<std::vector<int>>();
         }
 
         if (_variablesMap.count("record-count"))
         {
-            _recordCount = _variablesMap["record-count"].as<std::vector<int>>();
+            _settings.recordCount = _variablesMap["record-count"].as<std::vector<int>>();
         }
         if (_variablesMap.count("record-count-ratio"))
         {
-            _recordCountRatio = _variablesMap["record-count-ratio"].as<std::vector<double>>();
+            _settings.recordCountRatio = _variablesMap["record-count-ratio"].as<std::vector<double>>();
         }
         if (_variablesMap.count("checksum-bits"))
         {
-            _checksumBits = _variablesMap["checksum-bits"].as<std::vector<int>>();
+            _settings.checksumBits = _variablesMap["checksum-bits"].as<std::vector<int>>();
         }
 
-        if (_specifiedBits[0] <= 0 || _recordLength[0] <= 0 || _probabilityRatio[0] < 0 || _probabilityRatio[0] > 1 || _recordCountRatio[0] <= 0)
+        if (_settings.specifiedBits[0] <= 0 || _settings.recordLength[0] <= 0 || _settings.probabilityRatio[0] < 0 || _settings.probabilityRatio[0] > 1 || _settings.recordCountRatio[0] <= 0)
         {
             std::cerr << "Incorrect parameter value" << std::endl;
             exit(1);
@@ -151,8 +152,9 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
         _solveTesting = _variablesMap.count("solve-tests");
         _distributionTesting = _variablesMap.count("distribution");
         _batchMode = _variablesMap.count("batch");
+        _genTimeTest = _variablesMap.count("gen-time-tests");
         if (!_dbRecord.empty())
-            _recordLength[0] = _dbRecord.size();
+            _settings.recordLength[0] = _dbRecord.size();
         alg::to_lower(_algorithm);
         alg::to_lower(_solver);
     }
@@ -182,6 +184,10 @@ void CLIInterface::Run()
     {
         RunSolveTests();
     }
+    else if(_genTimeTest)
+    {
+        RunGenerationTimeTests();
+    }
     else
     {
         RunGenerator();
@@ -205,26 +211,26 @@ void CLIInterface::RunSuperfluousStringsTest()
             exit(1);
         }
         std::vector<Checksum::ChecksumType> checksums;
-        std::transform(_checksumBits.begin(), _checksumBits.end(), std::back_inserter(checksums), Checksum::GetChecksumType);
+        std::transform(_settings.checksumBits.begin(), _settings.checksumBits.end(), std::back_inserter(checksums), Checksum::GetChecksumType);
         if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
         {
-            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatio[0], _specifiedBits[0], checksums, _repeat).Run(_outputFile);
+            SuperfluousStringBatchTest(_settings.recordLength, _settings.recordCountRatio, _settings.probabilityRatio[0], _settings.specifiedBits[0], checksums, _settings.repeat).Run(_outputFile);
         }
         else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
         {
-            SuperfluousStringBatchTest(_recordLength, _recordCountRatio, _probabilityRatios, _specifiedBits[0], checksums, _repeat).Run(_outputFile);
+            SuperfluousStringBatchTest(_settings.recordLength, _settings.recordCountRatio, _settings.probabilityRatios, _settings.specifiedBits[0], checksums, _settings.repeat).Run(_outputFile);
         }
         return;
     }
 
     if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
-        SuperfluousStringTest test(Checksum::GetChecksumType(_checksumBits[0]), _recordLength[0], _probabilityRatio[0], _recordCountRatio[0], _specifiedBits[0]);
+        SuperfluousStringTest test(Checksum::GetChecksumType(_settings.checksumBits[0]), _settings.recordLength[0], _settings.probabilityRatio[0], _settings.recordCountRatio[0], _settings.specifiedBits[0]);
         test.Run();
     }
     else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
-        SuperfluousStringTest test(Checksum::GetChecksumType(_checksumBits[0]), _recordLength[0], _probabilityRatios[0], _recordCountRatio[0], _specifiedBits[0]);
+        SuperfluousStringTest test(Checksum::GetChecksumType(_settings.checksumBits[0]), _settings.recordLength[0], _settings.probabilityRatios[0], _settings.recordCountRatio[0], _settings.specifiedBits[0]);
         test.Run();
     }
 }
@@ -237,7 +243,7 @@ void CLIInterface::RunGenerator()
     }
     else
     {
-        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(_recordCount[0], _recordLength[0]));
+        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(_settings.recordCount[0], _settings.recordLength[0]));
     }
     _generator->PrintParameters();
     std::unique_ptr<Stream> stream;
@@ -246,8 +252,8 @@ void CLIInterface::RunGenerator()
     {
         _outputFile = _algorithm + "_" +
                       (_algorithm == NDB_PrefixGenerator::GetName() || _algorithm == NDB_RandomizedOldGenerator::GetName() ||
-                       _algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_recordCount[0]) + "_" : "") +
-                      std::to_string(_recordLength[0]);
+                       _algorithm == NDB_RandomizedGenerator::GetName() ? std::to_string(_settings.recordCount[0]) + "_" : "") +
+                      std::to_string(_settings.recordLength[0]);
     }
 
 
@@ -280,7 +286,7 @@ void CLIInterface::RunGenerator()
 
     if (_generationMethod == "dimacs")
     {
-        dynamic_cast<DimacsFileStream*>(stream.get())->WriteHeader(_recordLength[0], count);
+        dynamic_cast<DimacsFileStream*>(stream.get())->WriteHeader(_settings.recordLength[0], count);
     }
 }
 
@@ -292,13 +298,13 @@ void CLIInterface::RunDistributionTest()
     }
     else
     {
-        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(1, _recordLength[0]));
+        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(1, _settings.recordLength[0]));
     }
     NDBStream ndb;
     _generator->Generate(ndb);
     auto result = DistributionTest::CalculateProbability(ndb.Ndb());
     std::cout << "\t";
-    for (int i = 1; i <= _recordLength[0]; ++i)
+    for (int i = 1; i <= _settings.recordLength[0]; ++i)
         std::cout << i << '\t';
     std::cout << std::endl;
 
@@ -363,11 +369,11 @@ void CLIInterface::RunDistributionTest()
     std::cout << std::endl;
 }
 
-std::vector<std::vector<double>> CLIInterface::GetPVectors() const
+std::vector<std::vector<double>> CLIInterface::GetPVectors()
 {
     std::vector<std::vector<double>> result;
     result.emplace_back();
-    for (auto r : _probabilityRatios)
+    for (auto r : _settings.probabilityRatios)
     {
         if (std::accumulate(result.back().begin(), result.back().end(), 0.0) + r >= 1.01)
             result.emplace_back();
@@ -401,23 +407,23 @@ void CLIInterface::RunSolveTests()
     }
     if (_algorithm == alg::to_lower_copy(NDB_PrefixGenerator::GetName()))
     {
-        PrefixBatchTest(solver, _recordCount, _recordLength, _repeat).Run(_outputFile);
+        PrefixBatchTest(solver).Run(_outputFile);
     }
     else if (_algorithm == alg::to_lower_copy(NDB_RandomizedGenerator::GetName()))
     {
-        RandomizerBatchTest(solver, _recordCount, _recordLength, _repeat).Run(_outputFile);
+        RandomizerBatchTest(solver).Run(_outputFile);
     }
     else if (_algorithm == alg::to_lower_copy(NDB_QHiddenGenerator::GetName()))
     {
-        QHiddenBatchTest(solver, _recordLength, _probabilityRatio, _recordCountRatio, _specifiedBits, _repeat).Run(_outputFile);
+        QHiddenBatchTest(solver).Run(_outputFile);
     }
     else if (_algorithm == alg::to_lower_copy(NDB_KHiddenGenerator::GetName()))
     {
-        KHiddenBatchTest(solver, _recordLength, GetPVectors(), _recordCountRatio, _specifiedBits, _repeat).Run(_outputFile);
+        KHiddenBatchTest(solver).Run(_outputFile);
     }
     else if (_algorithm == alg::to_lower_copy(NDB_HybridGenerator::GetName()))
     {
-        HybridBatchTest(solver, _recordLength, _probabilityRatio, _recordCountRatio, _repeat).Run(_outputFile);
+        HybridBatchTest(solver).Run(_outputFile);
     }
     else
     {
@@ -429,6 +435,11 @@ void CLIInterface::RunSolveTests()
 const CLIInterface::Settings &CLIInterface::GetSettings()
 {
     return _settings;
+}
+
+void CLIInterface::RunGenerationTimeTests()
+{
+
 }
 
 CLIInterface::Settings CLIInterface::_settings;

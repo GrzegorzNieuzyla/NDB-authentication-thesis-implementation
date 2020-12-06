@@ -1,5 +1,6 @@
 #include "QHiddenBatchTest.h"
 #include "../Generators/NDB_QHiddenGenerator.h"
+#include "../CLIInterface.h"
 
 #include <utility>
 
@@ -7,15 +8,16 @@ void QHiddenBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
     file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
-    for (auto length : _lengths)
+    auto settings = CLIInterface::GetSettings();
+    for (auto length : settings.recordLength)
     {
-        for (auto definedBits : _definedBits)
+        for (auto definedBits : settings.specifiedBits)
         {
-            for (auto recordCount : _recordCountRatios)
+            for (auto recordCount : settings.recordCountRatio)
             {
-                for (auto ratio : _probabilityRatios)
+                for (auto ratio : settings.probabilityRatio)
                 {
-                    for (int i = 0; i < _repeat; ++i)
+                    for (int i = 0; i < settings.repeat; ++i)
                     {
                         RunTest(file, length, ratio, recordCount, definedBits);
                     }
@@ -25,13 +27,8 @@ void QHiddenBatchTest::Run(const std::string &filename)
     }
 }
 
-QHiddenBatchTest::QHiddenBatchTest(GeneratorBatchTest::Solver solver, std::vector<int> lengths,
-                                   std::vector<double> probabilityRatios, std::vector<double> recordCountRatios, std::vector<int> definedBits,
-                                   int repeat) : GeneratorBatchTest(solver), _lengths(std::move(lengths)), _recordCountRatios(std::move(recordCountRatios)),
-                                                 _probabilityRatios(std::move(probabilityRatios)), _definedBits(std::move(definedBits)),
-                                                 _repeat(repeat)
+QHiddenBatchTest::QHiddenBatchTest(GeneratorBatchTest::Solver solver) : GeneratorBatchTest(solver)
 {
-
 }
 
 void QHiddenBatchTest::RunTest(std::ofstream &file, int length, double ratio, double recordCount, int bits)

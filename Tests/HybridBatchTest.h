@@ -5,18 +5,11 @@
 class HybridBatchTest : public GeneratorBatchTest
 {
 public:
-    HybridBatchTest(Solver solver, std::vector<int> lengths, std::vector<double> probabilityRatios,
-                    std::vector<double> recordCountRatios, int repeat);
+    HybridBatchTest(Solver solver);
 
     void Run(const std::string &filename) override;
 
 private:
-    std::vector<int> _lengths;
-    std::vector<double> _probabilityRatios;
-    std::vector<double> _recordCountRatios;
-
-    int _repeat;
-
     void RunTest(std::ofstream &file, int length, double ratio, double count);
 };
 

@@ -1,9 +1,8 @@
 #include "PrefixBatchTest.h"
 #include "../Generators/NDB_PrefixGenerator.h"
+#include "../CLIInterface.h"
 
-PrefixBatchTest::PrefixBatchTest(Solver solver, std::vector<int> counts, std::vector<int> lengths, int repeat)
-        : GeneratorBatchTest(solver), _counts(std::move(counts)),
-          _lengths(std::move(lengths)), _repeat(repeat)
+PrefixBatchTest::PrefixBatchTest(Solver solver) : GeneratorBatchTest(solver)
 {
 
 }
@@ -12,11 +11,12 @@ void PrefixBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
     file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
-    for (auto length : _lengths)
+    auto settings  = CLIInterface::GetSettings();
+    for (auto length : settings.recordLength)
     {
-        for (auto count : _counts)
+        for (auto count : settings.recordCount)
         {
-            for (int i = 0; i < _repeat; ++i)
+            for (int i = 0; i < settings.repeat; ++i)
             {
                 RunTest(file, count, length);
             }

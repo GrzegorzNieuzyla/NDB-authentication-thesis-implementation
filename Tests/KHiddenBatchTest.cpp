@@ -1,5 +1,6 @@
 #include "KHiddenBatchTest.h"
 #include "../Generators/NDB_KHiddenGenerator.h"
+#include "../CLIInterface.h"
 
 #include <utility>
 
@@ -7,15 +8,16 @@ void KHiddenBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
     file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
-    for (auto length : _lengths)
+    auto settings = CLIInterface::GetSettings();
+    for (auto length : settings.recordLength)
     {
-        for (auto definedBits : _definedBits)
+        for (auto definedBits : settings.specifiedBits)
         {
-            for (auto recordCount : _recordCountRatios)
+            for (auto recordCount : settings.recordCountRatio)
             {
-                for (const auto& ratio : _probabilityRatios)
+                for (const auto& ratio : CLIInterface::GetPVectors())
                 {
-                    for (int i = 0; i < _repeat; ++i)
+                    for (int i = 0; i < settings.repeat; ++i)
                     {
                         RunTest(file, length, ratio, recordCount, definedBits);
                     }
@@ -25,13 +27,7 @@ void KHiddenBatchTest::Run(const std::string &filename)
     }
 }
 
-KHiddenBatchTest::KHiddenBatchTest(GeneratorBatchTest::Solver solver, std::vector<int> lengths,
-                                   std::vector<std::vector<double>> probabilityRatios,
-                                   std::vector<double> recordCountRatios, std::vector<int> definedBits,
-                                   int repeat) : GeneratorBatchTest(solver), _lengths(std::move(lengths)),
-                                                 _probabilityRatios(std::move(probabilityRatios)),
-                                                 _recordCountRatios(std::move(recordCountRatios)), _definedBits(std::move(definedBits)),
-                                                 _repeat(repeat)
+KHiddenBatchTest::KHiddenBatchTest(GeneratorBatchTest::Solver solver) : GeneratorBatchTest(solver)
 {}
 
 void KHiddenBatchTest::RunTest(std::ofstream &file, int length, const std::vector<double> &prob, double count, int bits)

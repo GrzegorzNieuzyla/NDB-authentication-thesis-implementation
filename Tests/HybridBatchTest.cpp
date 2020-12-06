@@ -1,19 +1,20 @@
 #include "HybridBatchTest.h"
 #include "../Generators/NDB_HybridGenerator.h"
+#include "../CLIInterface.h"
 
-#include <utility>
 
 void HybridBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
     file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
-    for (auto length : _lengths)
+    auto settings = CLIInterface::GetSettings();
+    for (auto length : settings.recordLength)
     {
-        for (auto recordCount : _recordCountRatios)
+        for (auto recordCount : settings.recordCountRatio)
         {
-            for (auto ratio : _probabilityRatios)
+            for (auto ratio : settings.probabilityRatio)
             {
-                for (int i = 0; i < _repeat; ++i)
+                for (int i = 0; i < settings.repeat; ++i)
                 {
                     RunTest(file, length, ratio, recordCount);
                 }
@@ -22,15 +23,7 @@ void HybridBatchTest::Run(const std::string &filename)
     }
 }
 
-HybridBatchTest::HybridBatchTest(GeneratorBatchTest::Solver solver, std::vector<int> lengths,
-                                 std::vector<double> probabilityRatios,
-                                 std::vector<double> recordCountRatios, int repeat) : GeneratorBatchTest(solver),
-                                                                                             _lengths(std::move(lengths)),
-                                                                                             _probabilityRatios(std::move(
-                                                                                                     probabilityRatios)),
-                                                                                             _recordCountRatios(std::move(
-                                                                                                     recordCountRatios)),
-                                                                                             _repeat(repeat)
+HybridBatchTest::HybridBatchTest(GeneratorBatchTest::Solver solver) : GeneratorBatchTest(solver)
 {}
 
 void HybridBatchTest::RunTest(std::ofstream &file, int length, double ratio, double count)

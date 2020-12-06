@@ -7,13 +7,9 @@ class RandomizerBatchTest : public GeneratorBatchTest
 {
 public:
     void Run(const std::string &filename) override;
-    RandomizerBatchTest(Solver solver, std::vector<int> counts, std::vector<int> lengths, int repeat = 1);
+    RandomizerBatchTest(Solver solver);
 
 private:
-    std::vector<int> _lengths;
-    std::vector<int> _counts;
-    int _repeat;
-
     void RunTest(std::ofstream& file, int count, int length);
 };
 

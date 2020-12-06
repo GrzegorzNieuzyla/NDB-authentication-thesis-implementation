@@ -1,17 +1,17 @@
 #include "RandomizerBatchTest.h"
 #include "../Generators/NDB_RandomizedGenerator.h"
-
-#include <utility>
+#include "../CLIInterface.h"
 
 void RandomizerBatchTest::Run(const std::string &filename)
 {
     std::ofstream file(boost::ends_with(filename, ".csv") ? filename : filename + ".csv");
     file << FileUtils::CsvFileData::GetCsvDataHeader() << ";gen_time;solved;time;" << (_solver == GeneratorBatchTest::Solver::ZChaff ? "decisions" : "flips") << std::endl;
-    for (auto length : _lengths)
+    auto settings = CLIInterface::GetSettings();
+    for (auto length : settings.recordLength)
     {
-        for (auto count : _counts)
+        for (auto count : settings.recordCount)
         {
-            for (int i = 0; i < _repeat; ++i)
+            for (int i = 0; i < settings.repeat; ++i)
             {
                 RunTest(file, count, length);
             }
@@ -19,9 +19,7 @@ void RandomizerBatchTest::Run(const std::string &filename)
     }
 }
 
-RandomizerBatchTest::RandomizerBatchTest(Solver solver, std::vector<int> counts, std::vector<int> lengths,
-                                         int repeat)
-        : GeneratorBatchTest(solver), _counts(std::move(counts)), _lengths(std::move(lengths)), _repeat(repeat)
+RandomizerBatchTest::RandomizerBatchTest(Solver solver) : GeneratorBatchTest(solver)
 {}
 
 void RandomizerBatchTest::RunTest(std::ofstream& file, int count, int length)

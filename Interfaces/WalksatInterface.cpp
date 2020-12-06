@@ -1,8 +1,9 @@
 #include "WalksatInterface.h"
 #include "../Streams/DimacsFileStream.h"
+#include "../CLIInterface.h"
 #include <filesystem>
 
-WalksatResult WalksatInterface::Solve(const NDB &ndb, std::size_t cutoff, int noise)
+WalksatResult WalksatInterface::Solve(const NDB &ndb, int noise)
 {
     {
         DimacsFileStream stream(TMP_NDB_FILE);
@@ -14,7 +15,7 @@ WalksatResult WalksatInterface::Solve(const NDB &ndb, std::size_t cutoff, int no
     }
     std::string empty;
     std::string cutoffStr = "-cutoff";
-    auto cutoffStrVal = std::to_string(cutoff);
+    auto cutoffStrVal = std::to_string(CLIInterface::GetSettings().walksatCutoffLimit);
     std::string noiseStr = "-noise";
     auto noiseVal = std::to_string(noise);
     std::string solStr = "-numsol";

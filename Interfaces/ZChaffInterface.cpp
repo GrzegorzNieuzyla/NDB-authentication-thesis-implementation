@@ -1,5 +1,6 @@
 #include <ctime>
 #include "ZChaffInterface.h"
+#include "../CLIInterface.h"
 
 ZChaffInterface::ZChaffInterface()
 {
@@ -30,7 +31,7 @@ ZChaffInterface::Result ZChaffInterface::Solve(const NDB &ndb)
         }
         SAT_AddClause(_manager, clause.data(), clause.size());
     }
-
+    SAT_SetTimeLimit(_manager, CLIInterface::GetSettings().zchaffTimeLimit);
     std::clock_t c_start = std::clock();
     auto satResult = SAT_Solve(_manager);
     std::clock_t c_end = std::clock();

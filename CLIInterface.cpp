@@ -91,11 +91,13 @@ void CLIInterface::SetupCommandLine(int argc, char* argv[])
                 ("superfluous,s", "Don't generate file, check for superfluous strings")
                 ("batch", "Enable batch mode")
                 ("repeat", po::value<int>(&_repeat), "Specify times to repeat test")
-                ("checksum-bits,cb", po::value<std::vector<int>>(&_checksumBits)->multitoken(), "Checksum bits count")
+                ("checksum-bits", po::value<std::vector<int>>(&_checksumBits)->multitoken(), "Checksum bits count")
                 ("db-record", po::value<std::string>(&_dbRecord), "Specify DB record")
                 ("distribution", "Run distribution test")
                 ("help,h", "Produce help message")
                 ("solve-tests", "Run solve tests")
+                ("cutoff", po::value<std::size_t>(&_settings.walksatCutoffLimit), "Specify WalkSAT cutoff")
+                ("time-limit", po::value<std::size_t>(&_settings.zchaffTimeLimit), "Specify zChaff time limit")
                 ("solver", po::value<std::string>(&_solver), "Specify solver (zchaff | walksat)")
                 ("algorithm,a", po::value<std::string>(&_algorithm)->required(), algorithms.c_str());
 
@@ -423,3 +425,10 @@ void CLIInterface::RunSolveTests()
         exit(1);
     }
 }
+
+const CLIInterface::Settings &CLIInterface::GetSettings()
+{
+    return _settings;
+}
+
+CLIInterface::Settings CLIInterface::_settings;

@@ -9,6 +9,12 @@ class CLIInterface
 public:
     CLIInterface(int argc, char* argv[]);
     void Run();
+    struct Settings
+    {
+        std::size_t zchaffTimeLimit = 3600 * 24;
+        std::size_t walksatCutoffLimit = 1000000000;
+    };
+    static const Settings& GetSettings();
 private:
     void SetupCommandLine(int argc, char* argv[]);
     void SetupGenerator(const DB& db);
@@ -44,4 +50,5 @@ private:
     int  _repeat = 1;
     bool _solveTesting = false;
     std::string _solver = "zchaff";
+    static Settings _settings;
 };

@@ -40,6 +40,7 @@ void DimacsFileStream::WriteHeader(int length, int count)
 
 DimacsFileStream::~DimacsFileStream()
 {
+    _file.close();
     if (!_headerWritten)
     {
         std::cout << "DimacsFileStream::WriteHeader() not called" << std::endl;

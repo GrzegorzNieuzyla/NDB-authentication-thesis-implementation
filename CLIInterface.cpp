@@ -376,7 +376,7 @@ std::vector<std::vector<double>> CLIInterface::GetPVectors()
     result.emplace_back();
     for (auto r : _settings.probabilityRatios)
     {
-        if (std::accumulate(result.back().begin(), result.back().end(), 0.0) + r >= 1.01)
+        if (result.back().size() == _settings.specifiedBits[0])
             result.emplace_back();
         result.back().push_back(r);
     }

@@ -124,3 +124,31 @@ std::unordered_map<NDBChar, std::vector<double>> DistributionTest::CalculateProb
     }
     return result;
 }
+
+std::unordered_map<DistributionTest::Case, double> DistributionTest::CalculateTotalProbability(const NDB &ndb, const DBRecord &record)
+{
+    std::unordered_map<Case, double> result = {
+            {Case::Wildcard, 0},
+            {Case::Equal, 0},
+            {Case::NotEqual, 0}
+    };
+    auto total = record.Size() * ndb.Size();
+    assert(ndb.Records().begin()->Size() == record.Size());
+    for (const auto& ndbRecord : ndb.Records())
+    {
+        for (int i = 0; i < record.Size(); ++i)
+        {
+            if (ndbRecord.Characters()[i] == NDBChar::Wildcard)
+                result[Case::Wildcard]++;
+            else if ((ndbRecord.Characters()[i] == NDBChar::Bit1 && record.Characters()[i]) || (ndbRecord.Characters()[i] == NDBChar::Bit0 && !record.Characters()[i]))
+                result[Case::Equal]++;
+            else
+                result[Case::NotEqual]++;
+        }
+    }
+    result[Case::Wildcard] /= total;
+    result[Case::NotEqual] /= total;
+    result[Case::Equal] /= total;
+    return result;
+}
+

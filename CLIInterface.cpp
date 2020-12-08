@@ -22,6 +22,7 @@
 #include "Tests/KHiddenBatchTest.h"
 #include "Tests/HybridBatchTest.h"
 #include "Tests/GenerationTimeTest.h"
+#include "Tests/DistributionBatchTest.h"
 
 
 namespace po = boost::program_options;
@@ -293,81 +294,7 @@ void CLIInterface::RunGenerator()
 
 void CLIInterface::RunDistributionTest()
 {
-    if (!_dbRecord.empty())
-    {
-        SetupGenerator(DB {DBRecord::FromString(_dbRecord)});
-    }
-    else
-    {
-        SetupGenerator(RandomValuesGenerator::GenerateRandomDB(1, _settings.recordLength[0]));
-    }
-    NDBStream ndb;
-    _generator->Generate(ndb);
-    auto result = DistributionTest::CalculateProbability(ndb.Ndb());
-    std::cout << "\t";
-    for (int i = 1; i <= _settings.recordLength[0]; ++i)
-        std::cout << i << '\t';
-    std::cout << std::endl;
-
-    for (auto ch : {NDBChar::Bit0, NDBChar::Bit1, NDBChar::Wildcard})
-    {
-        std::cout << (ch == NDBChar::Bit0 ? '0' : (ch == NDBChar::Bit1 ? '1' : '*')) << ":\t";
-        for (auto i : result[ch])
-            std::cout << std::setprecision(3) << i << '\t';
-        std::cout << std::accumulate(result[ch].begin(), result[ch].end(), 0.0)  / result[ch].size();
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-    auto resultDefined = DistributionTest::CalculateProbabilityForDefined(ndb.Ndb());
-
-    for (auto ch : {NDBChar::Bit0, NDBChar::Bit1})
-    {
-        std::cout << (ch == NDBChar::Bit0 ? '0' : '1') << ":\t";
-        for (auto i : resultDefined[ch])
-            std::cout << std::setprecision(3) << i << '\t';
-        std::cout << std::accumulate(resultDefined[ch].begin(), resultDefined[ch].end(), 0.0) / resultDefined[ch].size();
-        std::cout << std::endl;
-    }
-    std::cout << std::endl;
-
-    auto entropy = DistributionTest::CalculateEntropy(ndb.Ndb());
-    auto gini = DistributionTest::CalculateGini(ndb.Ndb());
-    std::cout << "Ent:\t";
-    for (auto val : entropy)
-    {
-        std::cout << val << '\t';
-    }
-    std::cout << std::accumulate(entropy.begin(), entropy.end(), 0.0) / entropy.size();
-    std::cout << std::endl;
-
-    std::cout << "Gin:\t";
-
-    for (auto val : gini)
-    {
-        std::cout << val << '\t';
-    }
-    std::cout << std::accumulate(gini.begin(), gini.end(), 0.0) / gini.size();
-    std::cout << std::endl;
-    std::cout << std::endl;
-
-    entropy = DistributionTest::CalculateEntropyForDefined(ndb.Ndb());
-    gini = DistributionTest::CalculateGiniForDefined(ndb.Ndb());
-    std::cout << "Ent:\t";
-    for (auto val : entropy)
-    {
-        std::cout << val << '\t';
-    }
-    std::cout << std::accumulate(entropy.begin(), entropy.end(), 0.0) / entropy.size();
-    std::cout << std::endl;
-
-    std::cout << "Gin:\t";
-
-    for (auto val : gini)
-    {
-        std::cout << val << '\t';
-    }
-    std::cout << std::accumulate(gini.begin(), gini.end(), 0.0) / gini.size();
-    std::cout << std::endl;
+    DistributionBatchTest::Run();
 }
 
 std::vector<std::vector<double>> CLIInterface::GetPVectors()

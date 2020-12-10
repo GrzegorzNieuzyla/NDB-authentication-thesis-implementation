@@ -8,7 +8,7 @@ class RandomSeedProvider
 public:
     static std::size_t Get()
     {
-        static RandomSeedProvider instance {true};
+        static RandomSeedProvider instance {false};
         return instance._seed;
     }
 private:

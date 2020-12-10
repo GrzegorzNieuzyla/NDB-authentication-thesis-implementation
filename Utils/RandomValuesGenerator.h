@@ -91,6 +91,16 @@ public:
         std::uniform_int_distribution<std::size_t> dist;
         return dist(_instance._rng);
     }
+    static std::vector<char> GetRandomBytes(std::size_t length)
+    {
+        std::vector<char> result;
+        std::uniform_int_distribution<char> dist;
+        while (result.size() != length)
+        {
+            result.push_back(dist(_instance._rng));
+        }
+        return result;
+    }
 
 private:
     RandomValuesGenerator() = default;

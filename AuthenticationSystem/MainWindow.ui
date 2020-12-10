@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>649</width>
+    <height>393</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>NDB Authentication System</string>
+  </property>
+  <widget class="QWidget" name="centralWidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item>
+     <widget class="QStackedWidget" name="stackedWidget">
+      <property name="currentIndex">
+       <number>0</number>
+      </property>
+      <widget class="LoginScreen" name="page"/>
+      <widget class="RegisterScreen" name="page_2"/>
+      <widget class="UserScreen" name="page_3"/>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>LoginScreen</class>
+   <extends>QWidget</extends>
+   <header>AuthenticationSystem/LoginScreen.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RegisterScreen</class>
+   <extends>QWidget</extends>
+   <header>AuthenticationSystem/RegisterScreen.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>UserScreen</class>
+   <extends>QWidget</extends>
+   <header>AuthenticationSystem/UserScreen.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

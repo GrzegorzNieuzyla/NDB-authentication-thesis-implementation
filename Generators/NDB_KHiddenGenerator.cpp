@@ -40,10 +40,7 @@ size_t NDB_KHiddenGenerator::Generate(Stream &output)
 
         output << record.ToString() << "\n";
         ++count;
-
-        std::cout << "\r" << count << "/" << n << "    ";
     }
-    std::cout << std::endl;
     return count;
 }
 
